@@ -51,7 +51,8 @@ RHYTHMS.forEach(r=>{
 
 
     
-    cell.innerHTML=`<img src="main/rhythms/${r.file}" alt="${r.code}">`;
+    
+    cell.innerHTML=`<img src="rhythms/${r.file}" alt="${r.code}">`;
 
     
     cell.addEventListener("click",()=>typeToActiveBox(r.code));
@@ -75,6 +76,7 @@ grid.appendChild(undoCell);
 
 </body>
 </html>
+
 
 
 
