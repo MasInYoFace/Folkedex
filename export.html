@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Export Song List</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; background: #fffee0; padding: 20px; text-align: center; }
+        h1 { font-size: 36px; margin-bottom: 10px; }
+
+        #download-btn, #check-all, #uncheck-all { 
+            font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid #999; 
+            cursor: pointer; background: #f0f0f0; margin: 5px;
+        }
+        #download-btn:hover, #check-all:hover, #uncheck-all:hover { background: #e0e0e0; }
+
+        #song-preview { margin-top: 20px; text-align: left; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .song-item { margin-bottom: 12px; }
+        .song-title { font-weight: bold; }
+        .song-meta { margin-left: 12px; }
+
+        .options { margin-top: 20px; text-align: left; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .options p { margin-bottom: 5px; }
+        .options .checkbox-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+        .options label { display: flex; align-items: center; gap: 4px; }
+        #pdf-title { width: 100%; max-width: 400px; padding: 6px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #999; font-size: 14px; }
+
+        #filters-used-preview { font-size: 12px; margin-bottom: 12px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<h1>Export Filtered Song List</h1>
+
+<p>Enter a title for the PDF:</p>
+<input type="text" id="pdf-title" placeholder="My Folk Songs List">
+
+<div class="options">
+    <p>Select which metadata to include in the list:</p>
+    <div>
+        <button id="check-all">Check All</button>
+        <button id="uncheck-all">Uncheck All</button>
+    </div>
+    <div class="checkbox-row">
+        <label><input type="checkbox" value="Hardest Rhythmic"> Hardest Rhythmic</label>
+        <label><input type="checkbox" value="Hardest Melodic"> Hardest Melodic</label>
+        <label><input type="checkbox" value="Type"> Type</label>
+        <label><input type="checkbox" value="Origin"> Origin</label>
+        <label><input type="checkbox" value="Theme"> Theme</label>
+        <label><input type="checkbox" value="Grade Level"> Grade Level</label>
+        <label><input type="checkbox" value="Classroom Use"> Classroom Use</label>
+        <label><input type="checkbox" value="Game"> Game</label>
+        <label><input type="checkbox" value="Tone Set"> Tone Set</label>
+        <label><input type="checkbox" value="Scale"> Scale</label>
+        <label><input type="checkbox" value="Tonal Center"> Tonal Center</label>
+        <label><input type="checkbox" value="Rhythmic Content"> Rhythmic Content</label>
+        <label><input type="checkbox" value="Meter"> Meter</label>
+        <label><input type="checkbox" value="Melodic Form"> Melodic Form</label>
+        <label><input type="checkbox" value="Rhythmic Form"> Rhythmic Form</label>
+        
+    </div>
+</div>
+
+<button id="download-btn">Download PDF</button>
+
+<div id="song-preview">
+    <div id="filters-used-preview"></div>
+</div>
+
+<script>
+(async () => {
+    // Get filtered songs and active filters
+    let filteredSongs = [];
+    let activeFilters = [];
+    try {
+        filteredSongs = JSON.parse(localStorage.getItem("FOLKEDEX_FILTERED_SONGS") || "[]");
+        activeFilters = JSON.parse(localStorage.getItem("FOLKEDEX_ACTIVE_FILTERS") || "[]");
+    } catch(e){ console.error(e); }
+
+    const previewContainer = document.getElementById("song-preview");
+    const filtersUsedPreview = document.getElementById("filters-used-preview");
+
+    if(filteredSongs.length === 0){
+        previewContainer.innerHTML = "<p>No songs found in your filtered list. Go back and filter first.</p>";
+        return;
+    }
+
+    // Auto-check only filtered metadata options
+    const allCheckboxes = document.querySelectorAll(".options input[type=checkbox]");
+    allCheckboxes.forEach(cb=>{
+        cb.checked = activeFilters.some(f => f.field === cb.value);
+    });
+
+    function renderPreview() {
+        const checkedOptions = Array.from(document.querySelectorAll('.options input:checked')).map(c=>c.value);
+
+        // Render filters used
+        if(activeFilters.length){
+            const filtersText = activeFilters.map(f => `${f.field}: "${f.query}"`).join(" | ");
+            filtersUsedPreview.textContent = `Filters used: ${filtersText}`;
+        } else {
+            filtersUsedPreview.textContent = "";
+        }
+
+        // Clear old preview
+        previewContainer.querySelectorAll(".song-item").forEach(e=>e.remove());
+
+        filteredSongs.forEach((song,i)=>{
+            const div = document.createElement("div");
+            div.className = "song-item";
+
+            const titleDiv = document.createElement("div");
+            titleDiv.className = "song-title";
+            titleDiv.textContent = `${i+1}. ${song.Title}`;
+            div.appendChild(titleDiv);
+
+            checkedOptions.forEach(key=>{
+                if(song[key]){
+                    const metaDiv = document.createElement("div");
+                    metaDiv.className = "song-meta";
+                    metaDiv.textContent = `${key}: ${song[key]}`;
+                    div.appendChild(metaDiv);
+                }
+            });
+
+            previewContainer.appendChild(div);
+        });
+    }
+
+    // Initial render
+    renderPreview();
+
+    // Check/Uncheck All buttons
+    document.getElementById("check-all").addEventListener("click", ()=>{
+        document.querySelectorAll(".options input[type=checkbox]").forEach(c=>c.checked=true);
+        renderPreview();
+    });
+    document.getElementById("uncheck-all").addEventListener("click", ()=>{
+        document.querySelectorAll(".options input[type=checkbox]").forEach(c=>c.checked=false);
+        renderPreview();
+    });
+
+    // Update preview when checkboxes change
+    document.querySelectorAll(".options input[type=checkbox]").forEach(cb=>{
+        cb.addEventListener("change", renderPreview);
+    });
+
+    // Download PDF
+    document.getElementById("download-btn").addEventListener("click", ()=>{
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const pdfTitle = document.getElementById("pdf-title").value || "My Folk Songs List";
+
+        const marginTop = 15;
+        const marginBottom = 15;
+        const pageHeight = doc.internal.pageSize.height;
+        let y = marginTop;
+
+        // Title
+        doc.setFontSize(16);
+        doc.setFont(undefined,'bold');
+        doc.text(pdfTitle, 10, y); 
+        doc.setFont(undefined,'normal');
+        y += 10;
+
+        // Filters subtitle
+        doc.setFontSize(10);
+        if(activeFilters.length){
+            const filtersText = activeFilters.map(f => `${f.field}: "${f.query}"`).join(" | ");
+            doc.text(`Filters used: ${filtersText}`, 10, y); 
+            y += 8;
+        }
+
+        // Date
+        const dateStr = new Date().toLocaleDateString();
+        doc.text(`Date: ${dateStr}`, 10, y); 
+        y += 10;
+
+        const checkedOptions = Array.from(document.querySelectorAll('.options input:checked')).map(c=>c.value);
+
+        doc.setFontSize(12);
+        filteredSongs.forEach((song,i)=>{
+            // Title line
+            if(y > pageHeight - marginBottom){
+                doc.addPage();
+                y = marginTop;
+            }
+            doc.setFont(undefined,'bold');
+            doc.text(`${i+1}. ${song.Title}`, 10, y);
+            doc.setFont(undefined,'normal');
+            y += 6;
+
+            // Metadata lines
+            checkedOptions.forEach(key=>{
+                if(song[key]){
+                    if(y > pageHeight - marginBottom){
+                        doc.addPage();
+                        y = marginTop;
+                    }
+                    doc.text(`${key}: ${song[key]}`, 14, y);
+                    y += 6;
+                }
+            });
+
+            y += 4; // spacing after song
+        });
+
+        doc.save(`${pdfTitle.replace(/\s+/g,'_')}.pdf`);
+    });
+
+})();
+</script>
+
+</body>
+</html>

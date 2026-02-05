@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Piano Input</title>
+
+    <style>
+        #piano-container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        #piano {
+            display: flex;
+            position: relative;
+            height: 125px;
+        }
+
+        .white-key {
+            width: 40px;
+            height: 120px;
+            background: white;
+            border: 1px solid #333;
+            position: relative;
+            box-sizing: border-box;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            font-size: 18px;
+            padding-bottom: 4px;
+            user-select: none;
+        }
+
+        .white-key:hover { background: #f0f0f0; }
+
+        .black-key {
+            width: 26px;
+            height: 70px;
+            background: black;
+            position: absolute;
+            z-index: 10;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            font-size: 12px;
+            color: white;
+            padding-bottom: 2px;
+        }
+
+        .black-key:hover { background: #444; }
+
+        #undo-btn {
+            font-size: 24px;
+            margin-left: 15px;
+            cursor: pointer;
+            border: 1px solid #333;
+            background: #eee;
+            border-radius: 6px;
+            padding: 4px 8px;
+            height: 40px;
+            align-self: center;
+            user-select: none;
+        }
+
+        #undo-btn:hover { background: #ddd; }
+    </style>
+</head>
+<body>
+
+<div id="piano-container">
+    <div id="piano"></div>
+    <button id="undo-btn">⌫</button>
+</div>
+
+<script>
+// White keys
+const WHITE_KEYS = [
+    {note:"C3", sol:"d,"},{note:"D3", sol:"r,"},{note:"E3", sol:"m,"},{note:"F3", sol:"f,"},{note:"G3", sol:"s,"},
+    {note:"A4", sol:"l,"},{note:"B4", sol:"t,"},{note:"C4", sol:"d"},{note:"D4", sol:"r"},{note:"E4", sol:"m"},
+    {note:"F4", sol:"f"},{note:"G4", sol:"s"},{note:"A5", sol:"l"},{note:"B5", sol:"t"},{note:"C5", sol:"d'"},
+    {note:"D5", sol:"r'"},{note:"E5", sol:"m'"},{note:"F5", sol:"f'"},{note:"G5", sol:"s'"},{note:"A6", sol:"l'"},
+    {note:"B6", sol:"t'"}
+];
+
+// Black keys
+const BLACK_KEYS = [
+    {note:"C#3", sol:"di,"},{note:"D#3", sol:"me,"},{note:"F#3", sol:"fi,"},{note:"G#3", sol:"si,"},{note:"A#3", sol:"te,"},
+    {note:"C#4", sol:"di"},{note:"D#4", sol:"me"},{note:"F#4", sol:"fi"},{note:"G#4", sol:"si"},{note:"A#4", sol:"te"},
+    {note:"C#5", sol:"di'"},{note:"D#5", sol:"me'"},{note:"F#5", sol:"fi'"},{note:"G#5", sol:"si'"},{note:"A#5", sol:"te'"}
+];
+
+const piano = document.getElementById("piano");
+const whiteKeyWidth = 40;
+const keyOffsets = {"C#":0.7,"D#":1.7,"F#":3.7,"G#":4.7,"A#":5.7};
+
+// Helper to type into active search box
+function typeToActiveBox(syllable){
+    if(window.parent && window.parent.ACTIVE_SEARCH_BOX){
+        const box = window.parent.ACTIVE_SEARCH_BOX;
+        box.value += syllable;
+        // Dispatch input event that bubbles
+        box.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+}
+
+// Add white keys
+WHITE_KEYS.forEach(k=>{
+    const key = document.createElement("div");
+    key.className="white-key";
+    key.textContent = k.sol;
+    key.addEventListener("click",()=>typeToActiveBox(k.sol));
+    piano.appendChild(key);
+});
+
+// Add black keys
+BLACK_KEYS.forEach(k=>{
+    const key = document.createElement("div");
+    key.className="black-key";
+    key.textContent=k.sol;
+    key.addEventListener("click",()=>typeToActiveBox(k.sol));
+
+    const octave = parseInt(k.note.slice(-1));
+    const noteName = k.note.slice(0,-1);
+    let baseIndex = octave===3?0:octave===4?7:octave===5?14:19;
+    const left = (baseIndex + keyOffsets[noteName])*whiteKeyWidth;
+    key.style.left=left+"px";
+    piano.appendChild(key);
+});
+
+// Undo button
+document.getElementById("undo-btn").addEventListener("click",()=>{
+    if(window.parent && window.parent.ACTIVE_SEARCH_BOX){
+        const box = window.parent.ACTIVE_SEARCH_BOX;
+        if(box.value.length>0){
+            const regex=/(di|me|fi|si|te|[drmfslmt])['\,]?$/i;
+            const match = box.value.match(regex);
+            if(match){
+                box.value = box.value.slice(0,match.index);
+                box.dispatchEvent(new Event("input",{bubbles:true}));
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

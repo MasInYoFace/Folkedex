@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rhythm Input</title>
+
+    <style>
+        body { margin:0; padding:10px; font-family:Arial,sans-serif; background:transparent; }
+        #rhythm-grid {
+            display:flex; flex-wrap:wrap; gap:12px; justify-content:center; max-width:950px; margin:0 auto;
+        }
+        .rhythm-cell { cursor:pointer; user-select:none; display:flex; align-items:center; }
+        .rhythm-cell img, .undo-btn {
+            height:70px; width:auto; border:1px solid #999; border-radius:6px;
+            background:white; padding:6px 10px; display:flex; align-items:center; justify-content:center;
+            font-size:22px;
+        }
+        .rhythm-cell:hover img, .undo-btn:hover { background:#f0f0f0; }
+        .undo-btn { cursor:pointer; font-weight:bold; }
+    </style>
+</head>
+<body>
+
+<div id="rhythm-grid"></div>
+
+<script>
+const RHYTHMS=[
+    { file:"Ta.png", code:"t " },{ file:"Titi.png", code:"tt " },{ file:"Rest.png", code:"z " },{ file:"Too.png", code:"to " },
+    { file:"Tikatika.png", code:"tktk " },{ file:"Titika.png", code:"ttk " },{ file:"Tikati.png", code:"tkt " },
+    { file:"Tamti.png", code:"tmt " },{ file:"Syncopa.png", code:"scp " },
+    { file:"Tooo.png", code:"too " },{ file:"Toooo.png", code:"tooo " },
+    { file:"Timka.png", code:"tmk " },{ file:"Katim.png", code:"ktm " },
+    { file:"Ti.png", code:"ti " },{ file:"Tirest.png", code:"tiz " },{ file:"Tum.png", code:"tum " },{ file:"Tititi.png", code:"ttt " }
+];
+
+const grid=document.getElementById("rhythm-grid");
+
+// Helper
+function typeToActiveBox(syllable){
+    if(window.parent && window.parent.ACTIVE_SEARCH_BOX){
+        const box = window.parent.ACTIVE_SEARCH_BOX;
+        box.value += syllable;
+        box.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+}
+
+// Rhythm buttons
+RHYTHMS.forEach(r=>{
+    const cell=document.createElement("div");
+    cell.className="rhythm-cell";
+    cell.innerHTML=`<img src="rhythms/${r.file}" alt="${r.code}">`;
+    cell.addEventListener("click",()=>typeToActiveBox(r.code));
+    grid.appendChild(cell);
+});
+
+// Undo button
+const undoCell=document.createElement("div");
+undoCell.className="rhythm-cell";
+undoCell.innerHTML=`<div class="undo-btn">⌫</div>`;
+undoCell.addEventListener("click",()=>{
+    if(window.parent && window.parent.ACTIVE_SEARCH_BOX){
+        const box = window.parent.ACTIVE_SEARCH_BOX;
+        if(!box.value) return;
+        box.value = box.value.replace(/\S+\s*$/,"");
+        box.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+});
+grid.appendChild(undoCell);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta charset="UTF-8">
+    <title>Folkedex</title>
+
+    <!-- Fonts & styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- Core libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+    <!-- Search logic dependencies -->
+    <script src="melody_key.js"></script>
+    <script src="rhythm_key.js"></script>
+
+    <!-- Main search logic -->
+    <script src="search.js" defer></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #fffee0; }
+        h1#title { text-align:center; font-size:48px; font-family:'Fredoka One', cursive; margin-bottom:20px; color:#333; }
+        #search-container { display:flex; align-items:center; gap:10px; margin-bottom:15px; justify-content:center; }
+        #search-box, #search-field { padding:8px 12px; font-size:16px; border-radius:6px; border:1px solid #999; }
+        #search-box { width:400px; }
+        table { width:100%; }
+        .song-row { display:flex; gap:15px; align-items:flex-start; }
+        .song-meta-preview { font-size:13px; max-width:300px; }
+        .song-meta-preview div { margin-bottom:3px; }
+        .thumbnail-container { position:relative; display:inline-block; }
+        .thumbnail { width:400px; border:1px solid #ccc; box-shadow:0 0 4px rgba(0,0,0,0.2); transition:transform 0.2s ease-in-out; cursor:zoom-in; display:block; }
+        .thumbnail-container:hover .thumbnail { transform:scale(1.5); position:absolute; top:-50%; z-index:9999; }
+        .title-link { font-size:16px; font-weight:bold; cursor:pointer; color:#0066cc; }
+        .title-link:hover { text-decoration:underline; }
+        .collapsible-container { text-align:center; margin-bottom:1px; }
+        .collapsible-button { background-color:#f0f0f0; border:1px solid #999; border-radius:5px; padding:5px 10px; font-size:9px; cursor:pointer; }
+        .collapsible-iframe { width:100%; max-width:950px; border:none; margin:0 auto; display:block; }
+        .multi-filter { display:inline-flex; align-items:center; gap:10px; margin:5px 0; justify-content:center; }
+        .multi-filter input { width:400px; padding:8px 12px; font-size:16px; border-radius:6px; border:1px solid #999; }
+        .multi-filter select { padding:8px 12px; font-size:16px; border-radius:6px; border:1px solid #999; cursor:pointer; }
+        .multi-filter .remove-filter { padding:5px 8px; font-size:12px; cursor:pointer; border-radius:4px; border:1px solid #999; background-color:#f0f0f0; }
+        #extra-filters { text-align:center; margin-bottom:10px; }
+        #preview-options { text-align:center; margin-bottom:12px; font-size:12px; }
+        #preview-options label { margin-right:8px; white-space:nowrap; }
+        #filter-template { display:none; }
+        
+        /* Help / index button */
+#help-btn-wrapper {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 99999;  /* higher than everything else */
+    pointer-events: auto;  /* ensure clickable */
+}
+
+#help-btn {
+    display: block;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 20px;
+    color: #333;
+    background-color: #fff8c0;
+    border: 3px solid #999;
+    border-radius: 10px;
+    box-shadow: 2px 2px 0 #999;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    </style>
+</head>
+
+<script>
+window.ACTIVE_SEARCH_BOX = null;
+$(document).on("focus", "#search-box, .multi-filter input", function () { window.ACTIVE_SEARCH_BOX = this; });
+</script>
+
+<body>
+    <div id="title">
+    <a href="game.html" id="help-btn" title="What's this?">?</a>
+</div>
+<h1 id="title">Folkedex</h1>
+
+<!-- Main Search -->
+<div id="search-container">
+    <input id="search-box" type="text" placeholder="Search metadata…">
+    <select id="search-field">
+        <option value="all">All Fields</option>
+        <option value="Full Melody">Melody Match</option>
+        <option value="Full Rhythm">Rhythm Match</option>
+        <option value="Hardest Melodic">Hardest Melodic</option>
+        <option value="Hardest Rhythmic">Hardest Rhythmic</option>
+        <option value="Theme">Theme</option>
+        <option value="Classroom Use">Classroom Use</option>
+        <option value="Grade Level">Grade Level</option>
+        <option value="Origin">Origin</option>
+        <option value="Tone Set">Tone Set</option>
+        <option value="Scale">Scale</option>
+        <option value="Tonal Center">Tonal Center</option>
+        <option value="Melodic Form">Melodic Form</option>
+        <option value="Rhythmic Content">Rhythmic Content</option>
+        <option value="Meter">Meter</option>
+        <option value="Rhythmic Form">Rhythmic Form</option>
+        <option value="Game">Game</option>
+        <option value="Type">Type</option>
+        <option value="Lyrics">Lyrics</option>
+    </select>
+</div>
+
+<div id="extra-filters"></div>
+<div style="text-align:center; margin-bottom:10px;">
+    <button id="add-filter" class="collapsible-button">Add Filter</button>
+</div>
+
+<div id="filter-template" class="multi-filter">
+    <input type="text" placeholder="Enter search…">
+    <select>
+        <option value="all">All Fields</option>
+        <option value="Full Melody">Melody Match</option>
+        <option value="Full Rhythm">Rhythm Match</option>
+        <option value="Hardest Melodic">Hardest Melodic</option>
+        <option value="Hardest Rhythmic">Hardest Rhythmic</option>
+        <option value="Theme">Theme</option>
+        <option value="Classroom Use">Classroom Use</option>
+        <option value="Grade Level">Grade Level</option>
+        <option value="Origin">Origin</option>
+        <option value="Tone Set">Tone Set</option>
+        <option value="Scale">Scale</option>
+        <option value="Tonal Center">Tonal Center</option>
+        <option value="Melodic Form">Melodic Form</option>
+        <option value="Rhythmic Content">Rhythmic Content</option>
+        <option value="Meter">Meter</option>
+        <option value="Rhythmic Form">Rhythmic Form</option>
+        <option value="Game">Game</option>
+        <option value="Type">Type</option>
+        <option value="Lyrics">Lyrics</option>
+    </select>
+    <button class="remove-filter">Remove</button>
+</div>
+
+<div class="collapsible-container">
+    <button class="collapsible-button" onclick="toggleIframe('#piano-container', this)">Hide Piano</button>
+    <div id="piano-container">
+        <iframe src="piano.html" class="collapsible-iframe" style="height:145px;"></iframe>
+    </div>
+</div>
+
+<div class="collapsible-container">
+    <button class="collapsible-button" onclick="toggleIframe('#rhythm-container', this)">Hide Rhythm Input</button>
+    <div id="rhythm-container">
+        <iframe src="rhythm.html" class="collapsible-iframe" style="height:200px;"></iframe>
+    </div>
+</div>
+
+<div style="text-align:center; margin-bottom:15px;">
+    <button id="export-btn" class="collapsible-button">Export Filtered List as PDF</button>
+</div>
+
+<div id="preview-options">
+    <strong>Preview metadata:</strong><br>
+    <label><input type="checkbox" class="preview-meta" value="Hardest Rhythmic"> Hardest Rhythmic</label>
+    <label><input type="checkbox" class="preview-meta" value="Hardest Melodic"> Hardest Melodic</label>
+    <label><input type="checkbox" class="preview-meta" value="Type"> Type</label>
+    <label><input type="checkbox" class="preview-meta" value="Origin"> Origin</label>
+    <label><input type="checkbox" class="preview-meta" value="Theme"> Theme</label>
+    <label><input type="checkbox" class="preview-meta" value="Grade Level"> Grade Level</label>
+    <label><input type="checkbox" class="preview-meta" value="Classroom Use"> Classroom Use</label>
+    <label><input type="checkbox" class="preview-meta" value="Game"> Game</label>
+    <label><input type="checkbox" class="preview-meta" value="Tone Set"> Tone Set</label>
+    <label><input type="checkbox" class="preview-meta" value="Scale"> Scale</label>
+    <label><input type="checkbox" class="preview-meta" value="Tonal Center"> Tonal Center</label>
+    <label><input type="checkbox" class="preview-meta" value="Rhythmic Content"> Rhythmic Content</label>
+    <label><input type="checkbox" class="preview-meta" value="Meter"> Meter</label>
+    <label><input type="checkbox" class="preview-meta" value="Melodic Form"> Melodic Form</label>
+    <label><input type="checkbox" class="preview-meta" value="Rhythmic Form"> Rhythmic Form</label>
+    <label><input type="checkbox" class="preview-meta" value="Hide Thumbnails"> Hide Thumbnails</label>
+</div>
+
+<table id="songs" class="display">
+    <thead><tr><th>Song</th></tr></thead>
+</table>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+function toggleIframe(selector, button) {
+    const $iframe = $(selector);
+    $iframe.slideToggle(200, () => {
+        button.textContent = $iframe.is(":visible")
+            ? (selector === "#piano-container" ? "Hide Piano" : "Hide Rhythm Input")
+            : (selector === "#piano-container" ? "Show Piano" : "Show Rhythm Input");
+    });
+}
+
+Papa.parse("folksongs.csv", {
+    download: true,
+    header: true,
+    complete: function(results) {
+        window.ALL_SONGS = results.data || [];
+        initSearchAndTable();
+        const sb = document.getElementById("search-box");
+        if (sb) { window.ACTIVE_SEARCH_BOX = sb; sb.focus(); }
+    }
+});
+
+$(document).on("click", "#export-btn", function () {
+    if (typeof saveFilteredStateForExport === "function") saveFilteredStateForExport();
+    location.href = "export.html";
+});
+
+// --------------------
+// Override initSearchAndTable with pagination + lazy thumbnails
+// --------------------
+window.initSearchAndTable = function() {
+    const data = window.ALL_SONGS;
+
+    function safeStr(v){ return v==null?"":String(v); }
+    function stripArticle(title){ return safeStr(title).toLowerCase().replace(/^(the|an|a|el)\s+/i,"").trim(); }
+
+    // preprocess search blob
+    data.forEach(song => {
+        song._searchBlob = {};
+        for(const key in song){ song._searchBlob[key]=safeStr(song[key]).toLowerCase(); }
+        song._searchBlob.all = Object.values(song._searchBlob).join(" ");
+    });
+
+    // lazy thumbnail loader
+    async function loadThumbnail(pdfPath, canvas, w){
+        if(!pdfPath||!canvas) return;
+        const pdf = await pdfjsLib.getDocument(pdfPath).promise;
+        const page = await pdf.getPage(1);
+        const vp = page.getViewport({scale:1});
+        const scale = (w*2.5)/vp.width;
+        const svp = page.getViewport({scale});
+        canvas.width=svp.width;
+        canvas.height=svp.height;
+        await page.render({canvasContext:canvas.getContext("2d"), viewport:svp}).promise;
+        canvas.style.width=w+"px";
+    }
+
+$.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
+    const song = rowData; // because you're using object data
+    if (!window.ACTIVE_FILTERS || !window.ACTIVE_FILTERS.length) return true;
+
+    for (const f of window.ACTIVE_FILTERS) {
+        if (f.field === "all") {
+            if (!song._searchBlob.all.includes(f.query.toLowerCase())) return false;
+        } else {
+            if (!(song._searchBlob[f.field] || "")
+                .includes(f.query.toLowerCase())) return false;
+        }
+    }
+    return true;
+});
+
+    const table = $('#songs').DataTable({
+        data,
+        pageLength: 50,
+        dom: 't<"bottom"ip>',
+        order:[[0,"asc"]],
+        columns:[{
+            data:"Title",
+            render:function(title,type,song){
+                title=safeStr(title);
+                if(type==="sort") return stripArticle(title);
+                if(type==="filter") return title;
+                let thumb="";
+                if(song&&song.PDFs){
+                    const id="thumb-"+Math.random().toString(36).slice(2);
+                    thumb=`<div class="thumbnail-container" data-title="${title}"><canvas id="${id}" class="thumbnail"></canvas></div>`;
+                }
+                return `<div class="song-row">${thumb}<div><span class="title-link" data-title="${title}">${title}</span><div class="song-meta-preview"></div></div></div>`;
+            }
+        }],
+        createdRow:function(row,song){
+            renderMetadataPreview(row,song); 
+            // thumbnails will be loaded lazily below
+        }
+    });
+
+    function renderMetadataPreview(row,song){
+        const container=row.querySelector('.song-meta-preview');
+        if(!container) return;
+        const fields=$('.preview-meta:checked').map(function(){return this.value;}).get();
+        container.innerHTML="";
+        const canvas=row.querySelector("canvas");
+        if(canvas) canvas.style.display=fields.includes("Hide Thumbnails")?"none":"block";
+        fields.forEach(key=>{
+            if(key!=="Hide Thumbnails"&&song[key]){
+                const div=document.createElement("div"); div.textContent=`${key}: ${song[key]}`; container.appendChild(div);
+            }
+        });
+    }
+
+    $(document).on('change','.preview-meta',()=>{ table.rows().every(function(){ renderMetadataPreview(this.node(),this.data()); }); });
+
+    // Lazy load thumbnails for visible rows
+    function lazyLoadThumbnails(){
+        table.rows({page:'current'}).every(function(){
+            const row=this.node();
+            const canvas=row.querySelector("canvas");
+            if(canvas && !canvas.dataset.loaded){
+                const song=this.data();
+                if(song.PDFs){
+                    const pdf="pdfs/"+safeStr(song.PDFs).split(",")[0].trim();
+                    loadThumbnail(pdf,canvas,400);
+                    canvas.dataset.loaded="true";
+                }
+            }
+        });
+    }
+    table.on('draw', lazyLoadThumbnails);
+    lazyLoadThumbnails();
+
+    // search logic
+  function performSearch() {
+    const filters = [];
+
+    const mainQuery = $('#search-box').val().trim();
+    const mainField = $('#search-field').val() || "all";
+    if (mainQuery) filters.push({ field: mainField, query: mainQuery });
+
+    $('#extra-filters .multi-filter').each(function () {
+        const query = $(this).find('input').val().trim();
+        const field = $(this).find('select').val();
+        if (query) filters.push({ field, query });
+    });
+
+    window.ACTIVE_FILTERS = filters;
+
+    // 🔑 STEP 1: reset paging completely
+    table.page.len(50);
+    table.page(0);
+
+    // 🔑 STEP 2: FULL draw so ext.search applies cleanly
+    table.draw(true);
+
+    const filteredCount = table.rows({ filter: 'applied' }).count();
+
+    // 🔑 STEP 3: set correct page size
+    if (filteredCount <= 50) {
+        table.page.len(filteredCount || 1);
+    } else {
+        table.page.len(50);
+    }
+
+    // 🔑 STEP 4: final draw, no state reuse
+    table.page(0).draw(true);
+
+    window.saveFilteredStateForExport?.();
+}
+
+
+    $('#search-box,#search-field').on('input change',performSearch);
+    $('#extra-filters').on('input change','input,select',performSearch);
+
+    $(document).on('click','.title-link,.thumbnail-container',function(){
+        const title=$(this).data('title');
+        if(title) location.href='song.html?title='+encodeURIComponent(title);
+    });
+};
+</script>
+</body>
+</html>
+
