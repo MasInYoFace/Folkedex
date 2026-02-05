@@ -48,7 +48,7 @@ function typeToActiveBox(syllable){
 RHYTHMS.forEach(r=>{
     const cell=document.createElement("div");
     cell.className="rhythm-cell";
-    cell.innerHTML=`<img src="main/rhythm/${r.file}" alt="${r.code}">`;
+    cell.innerHTML=`<img src="main/rhythms/${r.file}" alt="${r.code}">`;
     cell.addEventListener("click",()=>typeToActiveBox(r.code));
     grid.appendChild(cell);
 });
@@ -70,5 +70,6 @@ grid.appendChild(undoCell);
 
 </body>
 </html>
+
 
 
