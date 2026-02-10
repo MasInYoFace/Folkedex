@@ -3,14 +3,28 @@
 <head>
 
 
-
+<!--favicon-->
  <link rel="shortcut icon" type="image/x-icon" href="5.ico?">
 
+ <!--homescreen-->
 <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/gh/philfung/add-to-homescreen@3.5/dist/add-to-homescreen.min.css"
   />
   <script src="https://cdn.jsdelivr.net/gh/philfung/add-to-homescreen@3.5/dist/add-to-homescreen.min.js"></script>
+
+  <link rel="stylesheet" href="./dist/add-to-homescreen.min.css" />
+ 
+<meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Folkedex</title>
+    <!-- replace with your web app title-->
+    <link rel="manifest" crossorigin="use-credentials" href="manifest.json" />
+
  
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -410,6 +424,7 @@ $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
 </script>
 </body>
 </html>
+
 
 
 
