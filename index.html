@@ -23,11 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                                          // Optional. Default 'standalone'
   appIconUrl: 'apple-touch-icon.png',                    // App icon link (square, at least 40 x 40 pixels).
                                                          // Required.
-  assetUrl: 'https://github.com/MasInYoFace/Folkedex/blob/main/apple-touch-icon.png',  // Link to directory of library image assets.
+  assetUrl: 'https://cdn.jsdelivr.net/gh/philfung/add-to-homescreen@3.5/dist/assets/img/',  // Link to directory of library image assets.
 
   maxModalDisplayCount: -1,                              // If set, the modal will only show this many times.
                                                          // [Optional] Default: -1 (no limit).  (Debugging: Use this.clearModalDisplayCount() to reset the count)
-  displayOptions:{ showMobile: true, showDesktop: true }, // show on mobile/desktop [Optional] Default: show everywhere
+  displayOptions:{ showMobile: true, showDesktop: false }, // show on mobile/desktop [Optional] Default: show everywhere
   allowClose: true, // allow the user to close the modal by tapping outside of it [Optional. Default: true]
   showArrow: true, // show the bouncing arrow on the modal [Optional. Default: true] (highly recommend leaving at true as drastically affects install rates)
 });
@@ -410,6 +410,7 @@ $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
 </script>
 </body>
 </html>
+
 
 
 
