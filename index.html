@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-
+    
 <!--favicon-->
  <link rel="shortcut icon" type="image/x-icon" href="5.ico?">
 
@@ -13,7 +12,6 @@
   />
   <script src="https://cdn.jsdelivr.net/gh/philfung/add-to-homescreen@3.5/dist/add-to-homescreen.min.js"></script>
 
-  <!--<link rel="stylesheet" href="./dist/add-to-homescreen.min.css" />-->
  
 <meta charset="utf-8" />
    <!-- <meta
@@ -25,8 +23,7 @@
     <!-- replace with your web app title-->
     <link rel="manifest" crossorigin="use-credentials" href="manifest.json" />
 
- 
-    
+
     <meta charset="UTF-8">
     <title>Folkedex</title>
 
@@ -52,7 +49,7 @@
 
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #fffee0; }
-        h1#title { text-align:center; font-size:48px; font-family:'Fredoka One', cursive; margin-bottom:20px; color:#333; }
+        h1#title { text-align:center; font-size:48px; font-family:'Fredoka One', cursive; margin-bottom:0px; color:#333; }
         #search-container { display:flex; align-items:center; gap:10px; margin-bottom:15px; justify-content:center; }
         #search-box, #search-field { padding:8px 12px; font-size:16px; border-radius:6px; border:1px solid #999; }
         #search-box { width:400px; }
@@ -73,51 +70,140 @@
         .multi-filter select { padding:8px 12px; font-size:16px; border-radius:6px; border:1px solid #999; cursor:pointer; }
         .multi-filter .remove-filter { padding:5px 8px; font-size:12px; cursor:pointer; border-radius:4px; border:1px solid #999; background-color:#f0f0f0; }
         #extra-filters { text-align:center; margin-bottom:10px; }
-        #preview-options { text-align:center; margin-bottom:12px; font-size:12px; }
-        #preview-options label { margin-right:8px; white-space:nowrap; }
+        #preview-options { text-align:center; margin-bottom:12px; font-size:12px; z-index:99; }
+        #preview-options label { margin-right:8px; white-space:nowrap; z-index:99;}
         #filter-template { display:none; }
         
-        /* Help / index button */
-#help-btn-wrapper {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 99999;  /* higher than everything else */
-    pointer-events: auto;  /* ensure clickable */
-}
+       body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #fffee0;
+    }
 
-#help-btn {
-    display: block;
-    width: 36px;
-    height: 36px;
-    line-height: 36px;
-    text-align: center;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 20px;
-    color: #333;
-    background-color: #fff8c0;
-    border: 3px solid #999;
-    border-radius: 10px;
-    box-shadow: 2px 2px 0 #999;
-    text-decoration: none;
-    cursor: pointer;
-}
+    /* Top bar layout: help button, title, shortcut menu */
+    #top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
 
-    </style>
-</head>
+    /* Help button */
+    #help-btn {
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 20px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
 
-<script>
-window.ACTIVE_SEARCH_BOX = null;
-$(document).on("focus", "#search-box, .multi-filter input", function () { window.ACTIVE_SEARCH_BOX = this; });
-</script>
+    /* Title */
+    #title {
+        font-size: 48px;
+        font-family: 'Fredoka One', cursive;
+        margin: 0;
+        text-align: center;
+        color: #333;
+        flex: 1;
+    }
+
+    /* Shortcut menu wrapper */
+    #shortcutMount {
+        width: 120px; /* adjust as needed */
+        position: relative;
+    }
+
+    /* Shortcut list styles */
+    #shortcutMenu {
+        display: block;
+        width: 160px;
+        height: 36px;
+        line-height: 35px;
+        text-align: center;
+        font-size: 15px;
+        font-family: 'Fredoka One', cursive;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        cursor: pointer;
+        text-decoration: none;
+        margin-left: -50px;
+    }
+
+    #shortcutList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-top: 1px solid #999;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.8s ease;
+        font-size: 15px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 1px solid #999;
+        z-index: 9999; 
+        max-height: 0px;        /* max height for scrolling */
+    overflow-y: auto;         /* scroll if content exceeds max-height */
+    line-height: 30px;
+    }
+
+    #shortcutList.expanded {
+        max-height: 500px;
+    }
+
+    .shortcut-item {
+        padding: 0px 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .shortcut-item:hover {
+        background-color: #f0e68c;
+    }
+
+    /* Search container */
+    #search-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        justify-content: center;
+    }
+
+    #search-box, .multi-filter input {
+        padding: 8px 12px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: 1px solid #999;
+    }
+
+    #search-box {
+        width: 400px;
+    }
+
+    /* Other elements (thumbnails, tables, etc.) can remain unchanged */
+</style>
 
 <body>
-    <div id="title">
-    <a href="game.html" id="help-btn" title="What's this?">?</a>
-</div>
-<h1 id="title">Folkedex</h1>
+    <!-- Top bar: help button, title, shortcut menu -->
+    <div id="top-bar">
+        <a href="game.html" id="help-btn" title="What's this?">?</a>
+        <h1 id="title">Folkedex</h1>
+        <div id="shortcutMount"></div>
+    </div>
 
-<!-- Main Search -->
+    <!-- Main Search -->
 <div id="search-container">
     <input id="search-box" type="text" placeholder="Search metadata…">
     <select id="search-field">
@@ -125,6 +211,7 @@ $(document).on("focus", "#search-box, .multi-filter input", function () { window
         <option value="Full Melody">Melody Match</option>
         <option value="Full Rhythm">Rhythm Match</option>
         <option value="Hardest Melodic">Hardest Melodic</option>
+        <option value="Melodic Context">Melodic Context</option>
         <option value="Hardest Rhythmic">Hardest Rhythmic</option>
         <option value="Theme">Theme</option>
         <option value="Classroom Use">Classroom Use</option>
@@ -155,6 +242,7 @@ $(document).on("focus", "#search-box, .multi-filter input", function () { window
         <option value="Full Melody">Melody Match</option>
         <option value="Full Rhythm">Rhythm Match</option>
         <option value="Hardest Melodic">Hardest Melodic</option>
+        <option value="Melodic Context">Melodic Context</option>
         <option value="Hardest Rhythmic">Hardest Rhythmic</option>
         <option value="Theme">Theme</option>
         <option value="Classroom Use">Classroom Use</option>
@@ -170,9 +258,11 @@ $(document).on("focus", "#search-box, .multi-filter input", function () { window
         <option value="Game">Game</option>
         <option value="Type">Type</option>
         <option value="Lyrics">Lyrics</option>
+        
     </select>
     <button class="remove-filter">Remove</button>
 </div>
+
 
 <div class="collapsible-container">
     <button class="collapsible-button" onclick="toggleIframe('#piano-container', this)">Hide Piano</button>
@@ -184,11 +274,11 @@ $(document).on("focus", "#search-box, .multi-filter input", function () { window
 <div class="collapsible-container">
     <button class="collapsible-button" onclick="toggleIframe('#rhythm-container', this)">Hide Rhythm Input</button>
     <div id="rhythm-container">
-        <iframe src="rhythm.html" class="collapsible-iframe" style="height:200px;"></iframe>
+        <iframe src="rhythm.html" class="collapsible-iframe" style="height:171px;"></iframe>
     </div>
 </div>
 
-<div style="text-align:center; margin-bottom:15px;">
+<div style="text-align:center; margin-bottom:10px;">
     <button id="export-btn" class="collapsible-button">Export Filtered List as PDF</button>
 </div>
 
@@ -196,6 +286,7 @@ $(document).on("focus", "#search-box, .multi-filter input", function () { window
     <strong>Preview metadata:</strong><br>
     <label><input type="checkbox" class="preview-meta" value="Hardest Rhythmic"> Hardest Rhythmic</label>
     <label><input type="checkbox" class="preview-meta" value="Hardest Melodic"> Hardest Melodic</label>
+    <label><input type="checkbox" class="preview-meta" value="Melodic Context"> Melodic Context</label>
     <label><input type="checkbox" class="preview-meta" value="Type"> Type</label>
     <label><input type="checkbox" class="preview-meta" value="Origin"> Origin</label>
     <label><input type="checkbox" class="preview-meta" value="Theme"> Theme</label>
@@ -215,6 +306,8 @@ $(document).on("focus", "#search-box, .multi-filter input", function () { window
 <table id="songs" class="display">
     <thead><tr><th>Song</th></tr></thead>
 </table>
+
+
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -348,6 +441,7 @@ $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
     table.on('draw', lazyLoadThumbnails);
     lazyLoadThumbnails();
 
+
     // search logic
   function performSearch() {
     const filters = [];
@@ -384,6 +478,9 @@ $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
     table.page(0).draw(true);
 
     window.saveFilteredStateForExport?.();
+
+
+    
 }
 
 
@@ -394,10 +491,11 @@ $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
         const title=$(this).data('title');
         if(title) location.href='song.html?title='+encodeURIComponent(title);
     });
+
+    
 };
 </script>
 
- 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
  window.AddToHomeScreenInstance = window.AddToHomeScreen({
@@ -422,24 +520,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                                          // [optional] language.  If left blank, then language is auto-decided from (1) URL param locale='..' (e.g. /?locale=es) (2) Browser language settings
 });
 </script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
