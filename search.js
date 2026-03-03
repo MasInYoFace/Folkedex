@@ -96,7 +96,7 @@ window.initSearchAndTable = function () {
     const table = $('#songs').DataTable({
         data,
         pageLength: 50,
-        dom: 't<"bottom"ip>',
+        dom: '<"top"i>t<"bottom"ip>',  // <-- adds the info at the top
         order: [[0, "asc"]],
         columns: [{
             data: "Title",
@@ -278,6 +278,61 @@ window.initSearchAndTable = function () {
         const title = $(this).data('title');
         if (title) location.href = 'song.html?title=' + encodeURIComponent(title);
     });
+
+
+    //shortcuts logic
+document.querySelectorAll(".shortcut-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
+
+    const text = this.dataset.text;
+    const filter = this.dataset.filter;
+
+    const searchInput = document.getElementById("search-box");
+    const filterDropdown = document.getElementById("search-field");
+
+    if (!searchInput || !filterDropdown) return;
+
+    searchInput.value = text;
+    filterDropdown.value = filter;
+
+    searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+    filterDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+});
+
+fetch("shortcuts.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("shortcutMount").innerHTML = html;
+
+    const header = document.getElementById("shortcutHeader");
+    const list = document.getElementById("shortcutList");
+
+    // Toggle collapse
+    header.addEventListener("click", () => {
+      list.classList.toggle("expanded");
+    });
+
+    // Shortcut clicks
+    document.querySelectorAll(".shortcut-item").forEach(item => {
+      item.addEventListener("click", function () {
+        const text = this.dataset.text;
+        const filter = this.dataset.filter;
+
+        const searchInput = document.getElementById("search-box");
+        const filterDropdown = document.getElementById("search-field");
+        if (!searchInput || !filterDropdown) return;
+
+        searchInput.value = text;
+        filterDropdown.value = filter;
+
+        searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+        filterDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    });
+  });
+
+
 
     // --------------------
     // AUTOCOMPLETE DATA

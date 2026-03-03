@@ -7,11 +7,11 @@
     <style>
         body { margin:0; padding:10px; font-family:Arial,sans-serif; background:transparent; }
         #rhythm-grid {
-            display:flex; flex-wrap:wrap; gap:12px; justify-content:center; max-width:950px; margin:0 auto;
+            display:flex; flex-wrap:wrap; gap:5px; justify-content:center; max-width:950px; margin:0 auto;
         }
         .rhythm-cell { cursor:pointer; user-select:none; display:flex; align-items:center; }
         .rhythm-cell img, .undo-btn {
-            height:70px; width:auto; border:1px solid #999; border-radius:6px;
+            height:60px; width:auto; border:1px solid #999; border-radius:6px;
             background:white; padding:6px 10px; display:flex; align-items:center; justify-content:center;
             font-size:22px;
         }
@@ -25,12 +25,12 @@
 
 <script>
 const RHYTHMS=[
-    { file:"ta.png", code:"t " },{ file:"titi.png", code:"tt " },{ file:"rest.png", code:"z " },{ file:"too.png", code:"to " },
-    { file:"tikatika.png", code:"tktk " },{ file:"titika.png", code:"ttk " },{ file:"tikati.png", code:"tkt " },
-    { file:"tamti.png", code:"tmt " },{ file:"syncopa.png", code:"scp " },
-    { file:"tooo.png", code:"too " },{ file:"toooo.png", code:"tooo " },
-    { file:"timka.png", code:"tmk " },{ file:"katim.png", code:"ktm " },
-    { file:"ti.png", code:"ti " },{ file:"tirest.png", code:"tiz " },{ file:"tum.png", code:"tum " },{ file:"tititi.png", code:"ttt " }
+    { file:"Ta.png", code:"t " },{ file:"Titi.png", code:"tt " },{ file:"Rest.png", code:"z " },{ file:"Too.png", code:"to " },
+    { file:"Tikatika.png", code:"tktk " },{ file:"Titika.png", code:"ttk " },{ file:"Tikati.png", code:"tkt " },
+    { file:"Tamti.png", code:"tmt " },{ file:"Syncopa.png", code:"scp " },
+    { file:"Tooo.png", code:"too " },{ file:"Toooo.png", code:"tooo " },
+    { file:"Timka.png", code:"tmk " },{ file:"Katim.png", code:"ktm " },
+    { file:"Ti.png", code:"ti " },{ file:"Tirest.png", code:"tiz " },{ file:"Tum.png", code:"tum " },{ file:"Tititi.png", code:"ttt " }
 ];
 
 const grid=document.getElementById("rhythm-grid");
@@ -48,18 +48,7 @@ function typeToActiveBox(syllable){
 RHYTHMS.forEach(r=>{
     const cell=document.createElement("div");
     cell.className="rhythm-cell";
-
-
-
-
-
-
-
-    
-    
     cell.innerHTML=`<img src="rhythms/${r.file}" alt="${r.code}">`;
-
-    
     cell.addEventListener("click",()=>typeToActiveBox(r.code));
     grid.appendChild(cell);
 });
@@ -81,12 +70,3 @@ grid.appendChild(undoCell);
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
