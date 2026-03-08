@@ -215,18 +215,20 @@ window.initSearchAndTable = function () {
     // --------------------
     // SEARCH LOGIC (FIXED)
     // --------------------
-    function performSearch() {
-        const filters = [];
 
-        const mainQuery = $('#search-box').val().trim();
-        const mainField = $('#search-field').val() || "all";
-        if (mainQuery) filters.push({ field: mainField, query: mainQuery });
+ 
+    function performSearch(scroll = false) {
+    const filters = [];
 
-        $('#extra-filters .multi-filter').each(function () {
-            const query = $(this).find('input').val().trim();
-            const field = $(this).find('select').val();
-            if (query) filters.push({ field, query });
-        });
+    const mainQuery = $('#search-box').val().trim();
+    const mainField = $('#search-field').val() || "all";
+    if (mainQuery) filters.push({ field: mainField, query: mainQuery });
+
+    $('#extra-filters .multi-filter').each(function () {
+        const query = $(this).find('input').val().trim();
+        const field = $(this).find('select').val();
+        if (query) filters.push({ field, query });
+    });
 
         window.ACTIVE_FILTERS = filters;
 
@@ -269,10 +271,34 @@ window.initSearchAndTable = function () {
 
         window.saveFilteredStateForExport?.();
         lazyLoadVisibleRows();
+
+         // --------------------
+    // SCROLL TO RESULTS
+    // --------------------
+     if (scroll) {
+    const tableContainer = document.getElementById("preview-options");
+    if (tableContainer) {
+        tableContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    }
     }
 
-    $('#search-box, #search-field').on('input change', performSearch);
-    $('#extra-filters').on('input change', 'input, select', performSearch);
+    
+$('#search-box').on('keydown', function(e) {
+    if (e.key === 'Enter') {
+        performSearch(true); 
+    }
+});
+
+// main search box + dynamically added filters
+$(document).on('keydown', '#search-box, #extra-filters input', function(e) {
+    if (e.key === 'Enter') {
+        performSearch(true);  // scroll on Enter
+    }
+});
+    
+   $('#search-box, #search-field').on('input change', () => performSearch());
+$('#extra-filters').on('input change', 'input, select', () => performSearch());
 
     $(document).on('click', '.title-link,.thumbnail-container', function () {
         const title = $(this).data('title');
@@ -493,4 +519,64 @@ if (k === "Tone Set") {
         document.getElementById("extra-filters"),
         { childList: true }
     );
+
+// --------------------
+// PREFILL SEARCH FROM URL
+// --------------------
+function applyURLSearchParams() {
+
+    const params = new URLSearchParams(window.location.search);
+
+    let searchValue = params.get("searchValue");
+    let searchField = params.get("searchField");
+
+    if (!searchValue) return;
+
+    // convert + to spaces
+    searchValue = decodeURIComponent(searchValue.replace(/\+/g, " "));
+    if (searchField) {
+        searchField = decodeURIComponent(searchField.replace(/\+/g, " "));
+    }
+
+    const searchInput = document.getElementById("search-box");
+    const filterDropdown = document.getElementById("search-field");
+
+    if (!searchInput || !filterDropdown) {
+        console.log("Search elements not found");
+        return;
+    }
+
+    searchInput.value = searchValue;
+
+    if (searchField) {
+        filterDropdown.value = searchField;
+    }
+
+    // trigger the search with scroll
+$('#search-box').trigger('input');
+$('#search-field').trigger('change');
+performSearch(true);  // <--- scroll only here
+}
+
+// run once table + listeners exist
+    applyURLSearchParams();
+
+    // remove parameters from URL so refresh doesn't repeat the search
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+
+
+    // attach Go button
+$('#go-btn').on('click', function() {
+    console.log("go pressed");
+    performSearch(true);
+
+    const previewSection = document.querySelector('.preview-meta-container');
+    if (previewSection) {
+        previewSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+});
 };

@@ -21,7 +21,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <title>Folkedex</title>
     <!-- replace with your web app title-->
-    <link rel="manifest" crossorigin="use-credentials" href="manifest.json" />
+<!--<link rel="manifest" crossorigin="use-credentials" href="manifest.json" /> -->
 
 
     <meta charset="UTF-8">
@@ -191,8 +191,67 @@
     #search-box {
         width: 400px;
     }
+#list-link-btn {
+    background-color: #b8c8ff;
+    border: 1px solid #999;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    color: #333;
+    width: 70px;            /* adjust as needed */
+    height: 50px;           /* adjust as needed */
 
-    /* Other elements (thumbnails, tables, etc.) can remain unchanged */
+}
+#list-link-btn:hover {
+    background-color: #9db4ff;
+}
+#go-btn {
+    background-color: #a5fe99;
+    border: 1px solid #999;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    color: #333;
+}
+#go-btn:hover {
+    background-color: #7ee071;
+}
+.go-button {
+    display: flex;
+    flex-direction: column; /* stack main + sub text vertically */
+    align-items: center;    /* horizontal center */
+    justify-content: center;/* vertical center */
+    padding: 8px 12px;
+    width: 70px;            /* adjust as needed */
+    height: 50px;           /* adjust as needed */
+    background-color: #b5ffab;
+    border: 1px solid #999;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    color: #333;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+}
+
+.go-button:hover {
+    background-color: #96ff88;
+}
+
+.go-button .main-text {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.go-button .sub-text {
+    font-size: 9px;
+    margin-top: 2px; /* small spacing under Go! */
+    color: #676767;
+}
 </style>
 
 <body>
@@ -205,7 +264,7 @@
 
     <!-- Main Search -->
 <div id="search-container">
-    <input id="search-box" type="text" placeholder="Search metadata…">
+    <input id="search-box" type="text" placeholder="Search songs...">
     <select id="search-field">
         <option value="all">All Fields</option>
         <option value="Full Melody">Melody Match</option>
@@ -213,6 +272,7 @@
         <option value="Hardest Melodic">Hardest Melodic</option>
         <option value="Melodic Context">Melodic Context</option>
         <option value="Hardest Rhythmic">Hardest Rhythmic</option>
+        <option value="Type">Type</option>
         <option value="Theme">Theme</option>
         <option value="Classroom Use">Classroom Use</option>
         <option value="Grade Level">Grade Level</option>
@@ -225,10 +285,20 @@
         <option value="Meter">Meter</option>
         <option value="Rhythmic Form">Rhythmic Form</option>
         <option value="Game">Game</option>
-        <option value="Type">Type</option>
         <option value="Lyrics">Lyrics</option>
     </select>
+
+    <!-- Go button -->
+    <button id="go-btn" class="go-button">
+  <span class="main-text">Go!</span>
+  <span class="sub-text">Enter</span>
+</button>
+    
+    <!-- New button linking to list.html -->
+    <button id="list-link-btn" class="collapsible-button" style="padding:8px 12px;">All Tags</button>
+
 </div>
+
 
 <div id="extra-filters"></div>
 <div style="text-align:center; margin-bottom:10px;">
@@ -244,6 +314,7 @@
         <option value="Hardest Melodic">Hardest Melodic</option>
         <option value="Melodic Context">Melodic Context</option>
         <option value="Hardest Rhythmic">Hardest Rhythmic</option>
+        <option value="Type">Type</option>
         <option value="Theme">Theme</option>
         <option value="Classroom Use">Classroom Use</option>
         <option value="Grade Level">Grade Level</option>
@@ -256,7 +327,6 @@
         <option value="Meter">Meter</option>
         <option value="Rhythmic Form">Rhythmic Form</option>
         <option value="Game">Game</option>
-        <option value="Type">Type</option>
         <option value="Lyrics">Lyrics</option>
         
     </select>
@@ -274,7 +344,7 @@
 <div class="collapsible-container">
     <button class="collapsible-button" onclick="toggleIframe('#rhythm-container', this)">Hide Rhythm Input</button>
     <div id="rhythm-container">
-        <iframe src="rhythm.html" class="collapsible-iframe" style="height:171px;"></iframe>
+        <iframe src="rhythm.html" class="collapsible-iframe" style="height:175px;"></iframe>
     </div>
 </div>
 
@@ -283,7 +353,7 @@
 </div>
 
 <div id="preview-options">
-    <strong>Preview metadata:</strong><br>
+    <strong>Preview Tags:</strong><br>
     <label><input type="checkbox" class="preview-meta" value="Hardest Rhythmic"> Hardest Rhythmic</label>
     <label><input type="checkbox" class="preview-meta" value="Hardest Melodic"> Hardest Melodic</label>
     <label><input type="checkbox" class="preview-meta" value="Melodic Context"> Melodic Context</label>
@@ -341,6 +411,7 @@ $(document).on("click", "#export-btn", function () {
 // Override initSearchAndTable with pagination + lazy thumbnails
 // --------------------
 window.initSearchAndTable = function() {
+
     const data = window.ALL_SONGS;
 
     function safeStr(v){ return v==null?"":String(v); }
@@ -365,6 +436,7 @@ window.initSearchAndTable = function() {
         canvas.height=svp.height;
         await page.render({canvasContext:canvas.getContext("2d"), viewport:svp}).promise;
         canvas.style.width=w+"px";
+
     }
 
 $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
@@ -457,32 +529,20 @@ $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
     });
 
     window.ACTIVE_FILTERS = filters;
-
-    // 🔑 STEP 1: reset paging completely
     table.page.len(50);
     table.page(0);
-
-    // 🔑 STEP 2: FULL draw so ext.search applies cleanly
     table.draw(true);
 
     const filteredCount = table.rows({ filter: 'applied' }).count();
-
-    // 🔑 STEP 3: set correct page size
     if (filteredCount <= 50) {
         table.page.len(filteredCount || 1);
     } else {
         table.page.len(50);
     }
-
-    // 🔑 STEP 4: final draw, no state reuse
     table.page(0).draw(true);
 
     window.saveFilteredStateForExport?.();
-
-
-    
 }
-
 
     $('#search-box,#search-field').on('input change',performSearch);
     $('#extra-filters').on('input change','input,select',performSearch);
@@ -490,12 +550,97 @@ $.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
     $(document).on('click','.title-link,.thumbnail-container',function(){
         const title=$(this).data('title');
         if(title) location.href='song.html?title='+encodeURIComponent(title);
-    });
+    });   
 
-    
-};
+
+}
+
 </script>
 
+
+<script>
+document.getElementById('list-link-btn').addEventListener('click', function() {
+    const field = document.getElementById('search-field').value;
+
+    // Convert dropdown value to safe anchor ID
+    const anchor = field.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+
+    // If already on list.html, scroll smoothly
+    if(window.location.pathname.endsWith("list.html")) {
+        const elem = document.getElementById(anchor);
+        if(elem){
+            elem.scrollIntoView({behavior: "smooth"});
+            return; // done, no navigation needed
+        }
+    }
+
+    // Otherwise, go to list.html with hash
+    window.location.href = "list.html#" + anchor;
+});
+</script>
+<script>
+
+
+
+const placeholderMap = {
+    "all": "Search titles or tags...",
+    "Full Melody": "Search exact melodies ex. drmfs...",
+    "Full Rhythm": "Search exact rhythms ex. t tt tmt t...",
+    "Hardest Melodic": "Search most advanced melodic element ex. s,...",
+    "Melodic Context": "Search melodies with repeated pitches ignored. ex drm...",
+    "Hardest Rhythmic": "Search most advanced rhythmic element ex. tktk...",
+    "Type": "Search song type ex. Call and Response...",
+    "Theme": "Search song theme ex. Animals...",
+    "Classroom Use": "Search for practice/present, other tags ex. Language:...",
+    "Grade Level": "Search for K-5 grade level...",
+    "Origin": "Search for countries songs are from ex. Korea...",
+    "Tone Set": "Search for the tones used in a song ex. drmsl...",
+    "Scale": "Search for the scale a song uses ex. do pentatonic...",
+    "Tonal Center": "Search for the melodic homebase ex. la... ",
+    "Melodic Form": "Search for repeated melodic sections ex. ABAC...",
+    "Rhythmic Content": "Search for the rhythm set used ex. ta,tika-tika...",
+    "Meter": "Search for time signatures ex. 3/4...",
+    "Rhythmic Form": "Search for repeated rhythmic sections ex. ABAC...",
+    "Game": "Search for game formations or rules ex. Seated circle...",
+    "Lyrics": "Search for partial lyric matches ex. fresh mackerel...",
+
+
+};
+
+function updatePlaceholder(selectElement) {
+
+    const field = selectElement.value;
+    const placeholder = placeholderMap[field] || "Search...";
+
+    // main search
+    if (selectElement.id === "search-field") {
+        document.getElementById("search-box").placeholder = placeholder;
+        return;
+    }
+
+    // filter rows
+    const row = selectElement.closest(".multi-filter");
+    if (!row) return;
+
+    const input = row.querySelector("input");
+    if (input) input.placeholder = placeholder;
+}
+
+document.addEventListener("change", function(e) {
+
+    if (e.target.id === "search-field") {
+        updatePlaceholder(e.target);
+    }
+
+    if (e.target.closest(".multi-filter") && e.target.tagName === "SELECT") {
+        updatePlaceholder(e.target);
+    }
+
+});
+
+updatePlaceholder(document.getElementById("search-field"));
+
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
  window.AddToHomeScreenInstance = window.AddToHomeScreen({

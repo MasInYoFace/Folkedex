@@ -17,7 +17,7 @@
     #metadata-container { margin: 20px 0; font-size: 16px; }
     .metadata-item { margin: 4px 0; }
 
-    #guess-input { padding: 10px; width: 65%; font-size: 16px; border-radius: 5px; border: 1px solid #999; }
+    #guess-input { padding: 10px; width: 40%; font-size: 16px; border-radius: 5px; border: 1px solid #999; margin-bottom: 10px;}
     #submit-btn, #skip-btn { padding: 10px 20px; font-size: 16px; margin-left: 10px; border-radius: 5px; cursor: pointer; }
 
     #feedback { margin-top: 15px; font-weight: bold; }
@@ -104,10 +104,70 @@
     background-color: #f8c8c8;
     color: red;
 }
+
+#skip-btn span {
+    display: block;
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 2px;
+}
+
+#submit-btn span {
+    display: block;
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 2px;
+}
+
+#skip-btn.active-skip {
+    background-color: #d9534f;
+    color: white;
+}
+
+#submit-btn.correct-flash {
+    background-color: #28a745;
+    color: white;
+}
+
+@keyframes correctPulse {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.03); }
+    60%  { transform: scale(0.99); }
+    100% { transform: scale(1); }
+}
+
+.correct-animation {
+    animation: correctPulse 0.4s ease;
+}
+
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+#back-btn {
+        width: 100px;
+        height: 25x;
+        line-height: 20px;
+        font-family: 'Fredoka One', cursive;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
 </style>
 </head>
 
 <body>
+    
+<div><a href="index.html" id="back-btn" title="Back to Folkedex" style="padding:8px 12px;" >Back</a></div>
 
 <h1>Who's That FolkeSong?</h1>
 
@@ -127,8 +187,13 @@
     <div id="score">Score: 0</div>
     <div id="metadata-container">Loading songs…</div>
     <input type="text" id="guess-input" placeholder="Enter song title…">
-    <button id="submit-btn">Guess</button>
-    <button id="skip-btn">Skip (-5s)</button>
+    <br>
+    <button id="submit-btn">
+    Submit
+    <span>Enter</span></button>
+    <button id="skip-btn">
+    Skip (-5s)
+    <span>Esc</span></button>
     <div id="feedback"></div>
 </div>
 
@@ -251,24 +316,47 @@ function checkGuess() {
     if (!currentSong || !guess.trim()) return;
 
     if (isGuessCorrect(guess, currentSong.Title)) {
-        const title = currentSong.Title;
-        score++;
-        roundHistory.push({ title, status: "correct" });
-        document.getElementById("score").textContent = `Score: ${score}`;
-        document.getElementById("feedback").textContent =
-            `Correct! 🎉 The song is: "${title}"`;
-        setTimeout(newRound, 1500);
-    } else {
-        document.getElementById("feedback").textContent = "Try again!";
-    }
+    const title = currentSong.Title;
+    score++;
+
+    const submitBtn = document.getElementById("submit-btn");
+    submitBtn.classList.add("correct-flash");
+    setTimeout(() => {
+        submitBtn.classList.remove("correct-flash");
+    }, 1000);
+
+    roundHistory.push({ title, status: "correct" });
+    document.getElementById("score").textContent = `Score: ${score}`;
+    document.getElementById("feedback").textContent =
+        `Correct! 🎉 The song is: "${title}"`;
+
+    setTimeout(newRound, 1000);
+
+    const gameContainer = document.getElementById("game-container");
+gameContainer.classList.add("correct-animation");
+
+setTimeout(() => {
+    gameContainer.classList.remove("correct-animation");
+}, 400);
+}
 }
 
 function skipSong() {
     if (!currentSong) return;
+
+    const skipBtn = document.getElementById("skip-btn");
+    skipBtn.classList.add("active-skip");
+
+    setTimeout(() => {
+        skipBtn.classList.remove("active-skip");
+    }, 350);
+
     roundHistory.push({ title: currentSong.Title, status: "skipped" });
     timeLeft = Math.max(0, timeLeft - 5);
     document.getElementById("timer").textContent = `Time: ${timeLeft}s`;
+
     newRound();
+
     if (timeLeft === 0) endGame();
 }
 
@@ -285,12 +373,64 @@ function startTimer() {
     }, 1000);
 }
 
+function launchConfetti() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "confetti-canvas";
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const pieces = [];
+    const count = 150;
+
+    for (let i = 0; i < count; i++) {
+        pieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            size: Math.random() * 8 + 4,
+            speed: Math.random() * 3 + 2,
+            angle: Math.random() * 360
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        pieces.forEach(p => {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.angle * Math.PI / 180);
+            ctx.fillStyle = `hsl(${Math.random() * 360}, 80%, 60%)`;
+            ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+            ctx.restore();
+
+            p.y += p.speed;
+            p.angle += 5;
+        });
+    }
+
+    let frame = 0;
+    function animate() {
+        draw();
+        frame++;
+        if (frame < 700) {
+            requestAnimationFrame(animate);
+        } else {
+            document.body.removeChild(canvas);
+        }
+    }
+
+    animate();
+}
+
 function endGame() {
     clearInterval(timer);
 
     if (currentSong) {
         // If time ran out, mark the current song as "Ran out of time"
-        roundHistory.push({ title: currentSong.Title, status: "Ran out of time" });
+        roundHistory.push({ title: currentSong.Title, status: "ran out of time" });
         currentSong = null;
     }
 
@@ -309,6 +449,7 @@ function endGame() {
     });
 
     document.getElementById("end-screen").style.display = "block";
+    launchConfetti();
 }
 
 function startGame() {
@@ -330,6 +471,16 @@ Papa.parse("folksongs.csv", {
     download: true,
     header: true,
     complete: results => window.ALL_SONGS = results.data || []
+});
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+        const gameVisible = document.getElementById("game-container").style.display === "block";
+        if (gameVisible) {
+            e.preventDefault(); // prevents unintended browser behavior
+            skipSong();
+        }
+    }
 });
 </script>
 

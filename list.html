@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Song Tag Index</title>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+ <!-- Fonts & styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background-color: #b8c8ff;
+    }
+
+    h1 {
+        margin-bottom: 30px;
+    }
+
+    .category {
+        background: #9db4ff;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .category h2 {
+        margin-top: 0;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 6px;
+    }
+
+    .note {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-style: normal;
+        color: #000000;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .tag {
+        background: #e6e6e6;
+        padding: 6px 10px;
+        border-radius: 14px;
+        font-size: 14px;
+    }
+    .tag:hover {
+        background-color: #ffc4c4;
+    }
+  #title {
+        font-size: 48px;
+        font-family: 'Fredoka One', cursive;
+        margin: 20px;
+        text-align: center;
+        color: #333;
+        flex: 1;
+    }
+
+#back-btn {
+        width: 100px;
+        height: 25x;
+        line-height: 20px;
+        font-family: 'Fredoka One', cursive;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    
+</style>
+</head>
+
+<body>
+
+<div><a href="index.html" id="back-btn" title="Back to Folkedex" style="padding:8px 12px;" >Back</a></div>
+
+<h1 id="title">All Tags by Category</h1>
+<div id="tagContainer"></div>
+
+
+
+<script>
+
+const noSplitColumns = [
+    "Hardest Melodic",
+    "Scale",
+    "Tone Set"
+];
+
+const excludedColumns = [
+    "Rhythmic Content",
+    "Game",
+    "Full Melody",
+    "Full Rhythm",
+    "Lyrics",
+    "Melodic Context",
+    "CSP"
+];
+
+const hiddenColumns = [
+    "Title",
+    "Source",   
+    "PDFs",
+    "MuseScore Embed",
+    "Source Link"
+];
+
+const columnOrder = [
+    "Hardest Melodic",    
+    "Hardest Rhythmic",   
+    "Type",
+    "Theme",
+    "Origin",
+    "Classroom Use",
+    "Tone Set",
+    "Tonal Center",
+    "Scale",
+    "Meter",
+    "Grade Level",
+    "Melodic Form",
+    "Rhythmic Form",
+];
+
+// 🔹 Custom tag order for specific categories
+const customTagOrder = {
+    "Hardest Melodic": [
+        "so/mi", "la", "do", "re", "la,", "so,", "do'", "fa", "ti", "ti,"    ],
+
+    "Hardest Rhythmic": [
+        "ta", "ti-ti", "rest", "tika-tika", "ti-tika", "tika-ti", "tam-ti", "syn-co-pa", "to-o-o", "to-o-o-o", "tim-ka", "ka-tim", "ti", "ti-rest", "tum", "ti-ti-ti"
+    ],
+
+    "Grade Level": [
+        "K", "1", "2", "3", "4", "5"
+    ],
+
+    "Meter": [
+        "4/4", "2/4", "3/4", "6/8", "2/2", "9/8"
+    ]
+};
+
+const customNotes = {
+    "CSP": "Comfortable Starting Pitch. Use letter names. (ex. A Eb F#)",
+    "Rhythmic Content": "The set of rhythms used in the song. Use full Kodaly rhythm names (ex. ta tika-tika tam-ti rest). Add another Rhythmic Content filter to search for songs with multiple rhythms.",
+    "Game": "Full game instructions. Search for key words that relate to student formation or rules. (ex. standing circle, chase, new partner)",
+    "Full Melody": "Complete song melody. Use solfege shorthand, no spaces. (ex. drmfis)",
+    "Full Rhythm": "Complete song rhythm. Use Kodaly rhythm shorthand, spaces in between (ex. t tktk tmt z)",
+    "Lyrics": "Complete song lyrics. Use excerpts of lyrics. (ex. Johnny, remember me, just from the oven)",
+    "Melodic Context": "Complete song melody with no repeated notes. Useful for combining with Hardest Melodic to see how the note is used. Use solfege shorthand, no spaces. (ex. drm)",
+    "Hardest Melodic": "The most advanced melodic element in the song.",
+    "Hardest Rhythmic": "The most advanced rhythmic element in the song.",
+    "Type": "Song type. Songs may have multiple types.",
+    "Theme": "Song theme. Songs may have multiple themes.",
+    "Origin": "Where the song is from, or where it was recorded.",
+    "Classroom Use": "How the rhythmic and melodic elements can be incorporated, along with other uses and information.",
+    "Tone Set": "The set of notes used in the song. Use solfege shorthand, spaces optional. (ex. drmsl) Shows only exact matches.",
+    "Tonal Center": "Melodic homebase. Often the last note of the song.",
+    "Scale": "Name of the tone set. -tonic = gap in the scale. -chordal = all adjacent notes. ext' = extends above the octave. ext, = extends below the octave. ext; = extends in both directions. pentatonic* = 5 non-adjacent notes, but not drm sl",
+    "Meter": "Time signature of the song.",
+    "Grade Level": "Suggested grade of the song. Many songs have a range. K = Kindergarten",
+    "Melodic Form": "Shows repeated melodic sections of songs. Repeated pitches ignored.",
+    "Rhythmic Form": "Shows repeated rhythmic sections of songs. Must be an exact rhythmic match."
+};
+
+
+Papa.parse("folksongs.csv", {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+
+        const data = results.data;
+        const container = document.getElementById("tagContainer");
+
+        if (!data.length) return;
+
+        const allColumns = Object.keys(data[0]);
+        const visibleColumns = allColumns.filter(col => !hiddenColumns.includes(col));
+        const orderedColumns = columnOrder.filter(col => visibleColumns.includes(col));
+        const remainingColumns = visibleColumns
+            .filter(col => !columnOrder.includes(col))
+            .sort((a, b) => a.localeCompare(b));
+
+        const finalColumns = [...orderedColumns, ...remainingColumns];
+
+        finalColumns.forEach(column => {
+
+            const categoryDiv = document.createElement("div");
+            categoryDiv.className = "category";
+
+            const heading = document.createElement("h2");
+heading.textContent = column;
+
+// Convert the column name to a safe ID
+heading.id = column.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+categoryDiv.appendChild(heading);
+
+            if (customNotes[column]) {
+                const note = document.createElement("div");
+                note.className = "note";
+                note.textContent = customNotes[column];
+                categoryDiv.appendChild(note);
+            }
+
+            if (excludedColumns.includes(column)) {
+                container.appendChild(categoryDiv);
+                return;
+            }
+
+            const uniqueValues = new Set();
+
+// Keep entire value as one tag, including commas or slashes
+data.forEach(row => {
+    if (row[column]) {
+        // For columns where commas are part of the tag, keep the whole value
+        if (noSplitColumns.includes(column)) {
+            uniqueValues.add(row[column].trim()); // do NOT split on commas
+        } else {
+            // Only split columns intended to have multiple tags
+            row[column]
+                .split(",")
+                .map(v => v.trim())
+                .filter(v => v !== "")
+                .forEach(v => uniqueValues.add(v));
+        }
+    }
+});
+
+            if (uniqueValues.size > 0) {
+
+                let tagArray = Array.from(uniqueValues);
+
+                // 🔹 Apply custom tag order if defined
+                if (customTagOrder[column]) {
+
+                    const ordered = customTagOrder[column]
+                        .filter(tag => tagArray.includes(tag));
+
+                    const remaining = tagArray
+                        .filter(tag => !customTagOrder[column].includes(tag))
+                        .sort((a, b) => a.localeCompare(b));
+
+                    tagArray = [...ordered, ...remaining];
+
+                } else {
+                    tagArray.sort((a, b) => a.localeCompare(b));
+                }
+
+                const tagWrap = document.createElement("div");
+                tagWrap.className = "tags";
+
+                tagArray.forEach(value => {
+    const tag = document.createElement("div");
+    tag.className = "tag";
+    tag.textContent = value;
+
+    // Add dataset so we know what field and value this tag represents
+    tag.dataset.field = column;  // e.g., "Theme"
+    tag.dataset.value = value;    // the actual tag
+
+    // Optional: make it visually clickable
+    tag.style.cursor = "pointer";
+
+    tagWrap.appendChild(tag);
+});
+
+                categoryDiv.appendChild(tagWrap);
+
+            } else {
+                const note = document.createElement("div");
+                note.className = "note";
+                note.textContent = "(No data found)";
+                categoryDiv.appendChild(note);
+            }
+
+            container.appendChild(categoryDiv);
+            
+        });
+
+// Make all tags clickable using event delegation
+document.getElementById("tagContainer").addEventListener("click", function(e) {
+    const tag = e.target.closest(".tag");
+    if (!tag) return;
+
+    const value = tag.dataset.value;
+    const field = tag.dataset.field;
+
+    if (!value || !field) return;
+
+    // Redirect to index.html with search parameters
+    const url = new URL("index.html", window.location.origin);
+    url.searchParams.set("searchValue", value);
+    url.searchParams.set("searchField", field);
+
+    window.location.href = url.toString();
+});
+
+
+         // AFTER all categories are appended, scroll if there's a hash
+        const hash = window.location.hash.substring(1); // remove '#'
+        if(hash) {
+            const elem = document.getElementById(hash);
+            if(elem){
+                // Delay slightly to ensure browser finishes layout
+                setTimeout(() => {
+                    elem.scrollIntoView({behavior: "smooth"});
+                }, 50);
+            }
+        }
+    }
+});
+
+</script>
+
+</body>
+</html>
