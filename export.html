@@ -1,21 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+<!--favicon-->
+ <link rel="shortcut icon" type="image/x-icon" href="export_favicon.ico?">
+
     <meta charset="UTF-8">
     <title>Export Song List</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <style>
-        body { font-family: Arial, sans-serif; background: #fffee0; padding: 20px; text-align: center; }
-        h1 { font-size: 36px; margin-bottom: 10px; }
+    <!-- Fun title font -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
 
-        #download-btn, #check-all, #uncheck-all { 
+    <style>
+        body { font-family: Arial, sans-serif; background: #e8c3ff; padding: 20px; }
+        h1 { font-size: 36px; margin-bottom: 10px; text-align: center}
+        p { font-size: 16px; margin-bottom: 10px; text-align: center}
+         x { font-size: 16px; margin-bottom: 10px; text-align: left}
+
+        #check-all, #uncheck-all { 
             font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid #999; 
-            cursor: pointer; background: #f0f0f0; margin: 5px;
+            cursor: pointer; background: #c36eff; margin: 5px;
         }
-        #download-btn:hover, #check-all:hover, #uncheck-all:hover { background: #e0e0e0; }
+         #download-btn { 
+            font-size: 18px; padding: 4px 8px; border-radius: 6px; border: 2px solid #999; 
+            cursor: pointer; background: #c36eff; margin: 5px;  box-shadow: 2px 2px 0 #999;}
+
+        #download-btn:hover, #check-all:hover, #uncheck-all:hover { background: #b752ff; }
+
+       
 
         #song-preview { margin-top: 20px; text-align: left; max-width: 800px; margin-left: auto; margin-right: auto; }
         .song-item { margin-bottom: 12px; }
@@ -29,17 +44,57 @@
         #pdf-title { width: 100%; max-width: 400px; padding: 6px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #999; font-size: 14px; }
 
         #filters-used-preview { font-size: 12px; margin-bottom: 12px; font-style: italic; }
+
+   /* Search container */
+    #search-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        justify-content: center;
+    }
+
+     /* Title */
+    #title {
+        font-size: 48px;
+        font-family: 'Fredoka One', cursive;
+        margin: 0;
+        text-align: center;
+        color: #333;
+        flex: 1;
+    }
+
+        #back-btn {
+        width: 100px;
+        height: 25x;
+        line-height: 20px;
+        font-family: 'Fredoka One', cursive;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;}
     </style>
 </head>
 <body>
 
-<h1>Export Filtered Song List</h1>
+<div><a href="index.html" id="back-btn" title="Back to Folkedex" style="padding:8px 12px;" >Back</a></div>
+
+<h1 id="title">Export Filtered Songs</h1>
 
 <p>Enter a title for the PDF:</p>
-<input type="text" id="pdf-title" placeholder="My Folk Songs List">
+
+<div id="search-container">
+<input type="text" id="pdf-title" placeholder="ex. do pentatonic list / Animal themed songs">
+</div>
+
 
 <div class="options">
-    <p>Select which metadata to include in the list:</p>
+    <x>Select which metadata to include in the list:</x>
     <div>
         <button id="check-all">Check All</button>
         <button id="uncheck-all">Uncheck All</button>
@@ -67,7 +122,11 @@
     </div>
 </div>
 
+<div id="search-container">
 <button id="download-btn">Download PDF</button>
+</div>
+
+
 
 <div id="song-preview">
     <div id="filters-used-preview"></div>
@@ -156,7 +215,7 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        const pdfTitle = document.getElementById("pdf-title").value || "My Folk Songs List";
+        const pdfTitle = document.getElementById("pdf-title").value || "Folkedex List";
 
         const marginTop = 15;
         const marginBottom = 15;

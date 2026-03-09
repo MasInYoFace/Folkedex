@@ -25,7 +25,7 @@
             font-family: Arial, sans-serif;
             margin: 20px;
             max-width: 1500px;
-            background-color: #fff8e1;
+            background-color: #e3ffe1;
             background-image: linear-gradient(rgba(255, 255, 230, 0.5) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(255, 255, 230, 0.5) 1px, transparent 1px);
             background-size: 40px 40px;
@@ -66,7 +66,7 @@
             position: absolute;
             bottom: 10px;
             right: 10px;
-            background: #0066cc;
+            background: #1cb800;
             color: white;
             padding: 8px 14px;
             border: none;
@@ -75,7 +75,7 @@
         }
 
         .download-btn:hover {
-            background: #004c99;
+            background: #148700;
         }
 
         /* Metadata table */
@@ -99,7 +99,7 @@
         }
 
         #song-info-table th {
-            background-color: #ffe680;
+            background-color: #a7ff91;
             font-size: 16px;
         }
 
@@ -123,12 +123,30 @@
             display: block;
             margin-top: 4px;
         }
+
+        #back-btn {
+        width: 100px;
+        height: 25x;
+        line-height: 20px;
+        font-family: 'Fredoka One', cursive;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
     </style>
 </head>
 
 <body>
 
-<a href="index.html">← Back to Song List</a>
+<div><a href="index.html" id="back-btn" title="Back to Folkedex" style="padding:8px 12px;" >Back</a></div>
+
+
 <h1 id="song-title"></h1>
 
 <!-- PDFs -->
