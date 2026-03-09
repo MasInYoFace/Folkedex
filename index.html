@@ -193,22 +193,35 @@
     }
 #list-link-btn {
     background-color: #b8c8ff;
-    border: 1px solid #999;
+    border: 2px solid #999;
     border-radius: 6px;
     cursor: pointer;
     text-decoration: none;
     font-size: 14px;
     color: #333;
-    width: 70px;            /* adjust as needed */
+    width: 90px;            /* adjust as needed */
     height: 50px;           /* adjust as needed */
+    box-shadow: 2px 2px 0 #999;
 
 }
 #list-link-btn:hover {
     background-color: #9db4ff;
 }
+
+.list-link-btn .main-text {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.list-link-btn .sub-text {
+    font-size: 9px;
+    margin-top: 2px; /* small spacing under Go! */
+    color: #676767;
+}
+
 #go-btn {
     background-color: #a5fe99;
-    border: 1px solid #999;
+    border: 2px solid #999;
     border-radius: 6px;
     cursor: pointer;
     text-decoration: none;
@@ -229,6 +242,7 @@
     background-color: #b5ffab;
     border: 1px solid #999;
     border-radius: 6px;
+    box-shadow: 2px 2px 0 #999;
     cursor: pointer;
     text-decoration: none;
     font-family: Arial, sans-serif;
@@ -295,7 +309,11 @@
 </button>
     
     <!-- New button linking to list.html -->
-    <button id="list-link-btn" class="collapsible-button" style="padding:8px 12px;">All Tags</button>
+<button id="list-link-btn" class="list-link-btn">
+  <span class="main-text">All Tags</span>
+  <span class="sub-text"></span>
+</button>
+
 
 </div>
 
@@ -639,6 +657,24 @@ document.addEventListener("change", function(e) {
 });
 
 updatePlaceholder(document.getElementById("search-field"));
+
+const dropdown = document.getElementById("search-field");
+const subText = document.querySelector("#list-link-btn .sub-text");
+
+function updateListButtonSubtext() {
+    const selectedText = dropdown.options[dropdown.selectedIndex].text;
+    subText.textContent = selectedText;
+}
+
+dropdown.addEventListener("change", updateListButtonSubtext);
+
+// initialize on page load
+updateListButtonSubtext();
+
+dropdown.addEventListener("change", updateListButtonText);
+
+// run once on page load
+updateListButtonText();
 
 </script>
 <script>
