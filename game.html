@@ -165,6 +165,49 @@
         cursor: pointer;
         text-decoration: none;
     }
+    .wrong-animation {
+    animation: wrongFlash 0.3s;
+}
+
+@keyframes wrongFlash {
+    0% { background-color: #ffc2c2; }
+    
+    100% { background-color: transparent; }
+}
+.metadata-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 15px auto;
+    background: white;
+    border: 3px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.metadata-table td {
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    padding: 6px 10px;
+}
+
+.metadata-table tr:last-child td {
+    border-bottom: none;
+}
+
+.metadata-table td:last-child {
+    border-right: none;
+}
+
+.meta-label {
+    font-weight: bold;
+    background: #fff8c0;
+    white-space: nowrap;
+}
+.meta-value.full-melody {
+    max-width: 16ch;   
+    word-break: break-all;
+    font-size: 13px;
+}
 </style>
 </head>
 
@@ -256,25 +299,58 @@ function getTitleHint(title) {
 }
 
 function renderMetadata(song) {
+
     const container = document.getElementById("metadata-container");
     container.innerHTML = "";
     if (!song) return;
 
+    const table = document.createElement("table");
+    table.className = "metadata-table";
+
     DIFFICULTY_LEVELS[currentDifficulty].forEach(field => {
+
         if (song[field]) {
-            const div = document.createElement("div");
-            div.className = "metadata-item";
-            div.textContent = `${field}: ${song[field]}`;
-            container.appendChild(div);
+
+            const row = document.createElement("tr");
+
+            const label = document.createElement("td");
+            label.className = "meta-label";
+            label.textContent = field;
+
+           const value = document.createElement("td");
+value.className = "meta-value";
+value.textContent = song[field];
+
+if (field === "Full Melody") {
+    value.classList.add("full-melody");
+}
+
+            row.appendChild(label);
+            row.appendChild(value);
+            table.appendChild(row);
         }
+
     });
 
+    // Hint row (easy difficulty)
     if (currentDifficulty == 1 && song.Title) {
-        const hintDiv = document.createElement("div");
-        hintDiv.className = "metadata-item";
-        hintDiv.textContent = "Hint: " + getTitleHint(song.Title);
-        container.appendChild(hintDiv);
+
+        const row = document.createElement("tr");
+
+        const label = document.createElement("td");
+        label.className = "meta-label";
+        label.textContent = "Hint";
+
+        const value = document.createElement("td");
+        value.className = "meta-value";
+        value.textContent = getTitleHint(song.Title);
+
+        row.appendChild(label);
+        row.appendChild(value);
+        table.appendChild(row);
     }
+
+    container.appendChild(table);
 }
 
 function goToStartScreen() {
@@ -312,6 +388,7 @@ function newRound() {
     renderMetadata(currentSong);
     document.getElementById("guess-input").value = "";
     document.getElementById("feedback").textContent = "";
+    document.getElementById("guess-input").focus();
 }
 
 function checkGuess() {
@@ -341,6 +418,23 @@ gameContainer.classList.add("correct-animation");
 setTimeout(() => {
     gameContainer.classList.remove("correct-animation");
 }, 400);
+}
+else {
+
+    const feedback = document.getElementById("feedback");
+    feedback.textContent = "Try Again!";
+
+    setTimeout(() => {
+        feedback.textContent = "";
+    }, 1000);
+
+    const gameContainer = document.getElementById("game-container");
+    gameContainer.classList.add("wrong-animation");
+
+    setTimeout(() => {
+        gameContainer.classList.remove("wrong-animation");
+    }, 1000);
+
 }
 }
 
