@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Song Analysis Export</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background: white;
+        overflow-x: hidden;
+    }
+
+    #controls {
+        margin-bottom: 20px;
+    }
+
+    button {
+      width: 130px;
+        height: 50px;
+        line-height: 20px;
+        font-family: 'Fredoka One', cursive;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    #content {
+        width: 816px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    #headerTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+
+    #headerTable th,
+    #headerTable td {
+        border: 1px solid #000;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    #headerTable th {
+        background-color: #f2f2f2;
+        width: 15%;
+    }
+
+    #headerTable td {
+        width: 35%;
+    }
+
+    .header-label {
+        font-weight: bold;
+    }
+
+    .header-value {
+        font-size: 16px;
+    }
+
+    .title-label { font-size: 14px; }
+    .title-value { font-size: 18px; }
+
+    .type-label { font-size: 14px; }
+    .type-value { font-size: 18px; }
+
+    .source-label { font-size: 14px; }
+    .source-value { font-size: 12px; }
+
+    .theme-label { font-size: 14px; }
+    .theme-value { font-size: 18px; }
+
+    #bottomMetaTable {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin-top: 10px;
+    }
+
+    #bottomMetaTable td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        vertical-align: top;
+        word-wrap: break-word;
+        margin-top: 8px;
+    }
+
+    .halfRow {
+        display: flex;
+        gap: 10px;
+    }
+
+    .halfRow > div {
+        flex: 1;
+    }
+
+    #pdfCitation {
+        font-size: 10px;
+        color: #555;
+        text-align: center;
+        margin-bottom: 10px;
+        font-style: italic;
+    }
+
+    .export-lock {
+        overflow: hidden;
+    }
+
+    .export-lock * {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    #exportWrapper {
+        font-variant-ligatures: none;
+        text-rendering: geometricPrecision;
+        width: 816px;
+        margin: 0 auto;
+    }
+
+    #sheetMusic {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+    .pdf-page {
+    display: block;
+    margin: 0;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="controls">
+    <button id="exportBtn">Download PDF</button>
+
+    <label style="margin-left: 15px;">
+        Sheet Music Size:
+        <input type="range" id="zoomSlider" min="1" max="3" step="0.1" value="2">
+    </label>
+
+    <span id="zoomLabel" style="margin-left: 8px;">2.0x</span>
+
+    <label style="margin-left: 15px;">
+        <input type="checkbox" id="includePdf1">
+        Traditional Notation
+    </label>
+
+    <label style="margin-left: 10px;">
+        <input type="checkbox" id="includePdf2" checked>
+        Stick Notation
+    </label>
+
+    <label style="margin-left: 10px;">
+        <input type="checkbox" id="includePdf3">
+        Stick Notation, no melody
+    </label>
+</div>
+
+
+<div id="exportWrapper">
+<div id="content">
+
+<div id="pdfCitation"></div>
+
+<table id="headerTable">
+    <tr>
+        <th class="header-label title-label">Title</th>
+        <td id="titleCell" class="header-value title-value"></td>
+
+        <th class="header-label type-label">Type</th>
+        <td id="typeCell" class="header-value type-value"></td>
+    </tr>
+
+    <tr>
+        <th class="header-label source-label">Source</th>
+        <td id="sourceCell" class="header-value source-value"></td>
+
+        <th class="header-label theme-label">Theme</th>
+        <td id="themeCell" class="header-value theme-value"></td>
+    </tr>
+</table>
+
+<div id="sheetMusic"></div>
+
+<table id="bottomMetaTable">
+    <tr>
+        <td><b>Tone Set:</b> <span id="toneSetCell"></span></td>
+        <td><b>CSP:</b> <span id="cspCell"></span></td>
+        <td><b>Origin:</b> <span id="originCell"></span></td>
+    </tr>
+
+    <tr>
+        <td><b>Scale:</b> <span id="scaleCell"></span></td>
+        <td colspan="2"><b>Rhythmic Content:</b> <span id="rhythmContentCell"></span></td>
+    </tr>
+
+    <tr>
+        <td colspan="3">
+            <div class="halfRow">
+                <div><b>Melodic Form:</b> <span id="mFormCell"></span></div>
+                <div><b>Rhythmic Form:</b> <span id="rFormCell"></span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="3">
+            <div class="halfRow">
+                <div><b>Hardest Melodic:</b> <span id="mHardCell"></span></div>
+                <div><b>Hardest Rhythmic:</b> <span id="rHardCell"></span></div>
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="3"><b>Uses:</b> <span id="useCell"></span></td>
+    </tr>
+
+    <tr>
+        <td colspan="3"><b>Grade:</b> <span id="gradeCell"></span></td>
+    </tr>
+</table>
+
+</div>
+</div>
+
+<script>
+let renderToken = 0;
+let sheetMusicScale = 2;
+let currentPdfFiles = [];
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const params = new URLSearchParams(window.location.search);
+const title = decodeURIComponent(params.get("title") || "");
+
+document.title = title || "Song Analysis";
+
+const today = new Date();
+const accessDate =
+    String(today.getMonth() + 1).padStart(2, "0") +
+    "/" +
+    today.getFullYear();
+
+document.getElementById("pdfCitation").textContent =
+    `Mason Lim. www.folkedex.com Accessed ${accessDate}`;
+
+function lockExportLayout() {
+    document.body.classList.add("export-lock");
+}
+
+function unlockExportLayout() {
+    document.body.classList.remove("export-lock");
+}
+
+function applySheetMusicZoom(zoom) {
+    document.getElementById("zoomLabel").textContent = zoom.toFixed(1) + "x";
+
+    document.querySelectorAll(".pdf-page").forEach(canvas => {
+        canvas.style.width = `calc(${(zoom / 2) * 100}% - 6px)`;
+        canvas.style.height = "auto";
+    });
+}
+
+function getSelectedPdfPaths() {
+    const selected = [];
+
+    if (document.getElementById("includePdf1").checked && currentPdfFiles[0]) {
+        selected.push(`pdfs/${currentPdfFiles[0]}`);
+    }
+
+    if (document.getElementById("includePdf2").checked && currentPdfFiles[1]) {
+        selected.push(`pdfs/${currentPdfFiles[1]}`);
+    }
+
+    if (document.getElementById("includePdf3").checked && currentPdfFiles[2]) {
+        selected.push(`pdfs/${currentPdfFiles[2]}`);
+    }
+
+    return selected;
+}
+
+
+function renderSelectedPdfPages() {
+    renderPdfPages(getSelectedPdfPaths());
+}
+
+Papa.parse("folksongs.csv", {
+    download: true,
+    header: true,
+    complete(results) {
+        const song = results.data.find(r => r.Title === title);
+
+        if (!song) {
+            document.getElementById("content").innerHTML =
+                "<h2>Song not found.</h2>";
+            return;
+        }
+
+        document.getElementById("titleCell").textContent = song.Title || "";
+        document.getElementById("typeCell").textContent = song.Type || "";
+        document.getElementById("sourceCell").textContent = song.Source || "";
+        document.getElementById("themeCell").textContent = song.Theme || "";
+
+        document.getElementById("toneSetCell").textContent = song["Tone Set"] || "";
+        document.getElementById("cspCell").textContent = song["CSP"] || "";
+        document.getElementById("originCell").textContent = song["Origin"] || "";
+
+        document.getElementById("scaleCell").textContent = song["Scale"] || "";
+        document.getElementById("rhythmContentCell").textContent = song["Rhythmic Content"] || "";
+
+        document.getElementById("mFormCell").textContent = song["Melodic Form"] || "";
+        document.getElementById("rFormCell").textContent = song["Rhythmic Form"] || "";
+
+        document.getElementById("mHardCell").textContent = song["Hardest Melodic"] || "";
+        document.getElementById("rHardCell").textContent = song["Hardest Rhythmic"] || "";
+
+        document.getElementById("useCell").textContent = song["Classroom Use"] || "";
+        document.getElementById("gradeCell").textContent = song["Grade Level"] || "";
+
+        if (song.PDFs) {
+            currentPdfFiles = song.PDFs.split(",").map(f => f.trim()).filter(Boolean);
+
+document.getElementById("includePdf1").disabled = !currentPdfFiles[0];
+document.getElementById("includePdf2").disabled = !currentPdfFiles[1];
+document.getElementById("includePdf3").disabled = !currentPdfFiles[2];
+
+            renderSelectedPdfPages();
+        }
+    }
+});
+
+document.getElementById("zoomSlider").addEventListener("input", (e) => {
+    applySheetMusicZoom(parseFloat(e.target.value));
+});
+
+document.getElementById("includePdf1").addEventListener("change", renderSelectedPdfPages);
+document.getElementById("includePdf2").addEventListener("change", renderSelectedPdfPages);
+document.getElementById("includePdf3").addEventListener("change", renderSelectedPdfPages);
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+    const controls = document.getElementById("controls");
+    const originalOverflow = document.body.style.overflow;
+
+    lockExportLayout();
+    controls.style.display = "none";
+    document.body.style.overflow = "hidden";
+
+    const element = document.getElementById("exportWrapper");
+
+    html2pdf()
+        .set({
+            filename: `${title}.pdf`,
+            margin: 0.3,
+
+            image: {
+                type: "jpeg",
+                quality: 1
+            },
+
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                scrollX: 0,
+                scrollY: 0,
+                width: element.scrollWidth
+            },
+
+            jsPDF: {
+                unit: "in",
+                format: "letter",
+                orientation: "portrait"
+            },
+
+            pagebreak: {
+                mode: ["css", "legacy"]
+            }
+        })
+        .from(element)
+        .save()
+        .then(() => {
+            controls.style.display = "";
+            document.body.style.overflow = originalOverflow;
+            unlockExportLayout();
+        });
+});
+
+async function renderPdfPages(pdfPaths) {
+    const token = ++renderToken;
+    const container = document.getElementById("sheetMusic");
+
+    container.innerHTML = "";
+
+    for (const pdfPath of pdfPaths) {
+        if (token !== renderToken) return;
+
+        const pdf = await pdfjsLib.getDocument(pdfPath).promise;
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            if (token !== renderToken) return;
+
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 2.5 });
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            canvas.className = "pdf-page";
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({
+                canvasContext: ctx,
+                viewport
+            }).promise;
+
+            if (token !== renderToken) return;
+
+            container.appendChild(canvas);
+            applySheetMusicZoom(parseFloat(document.getElementById("zoomSlider").value));
+        }
+    }
+}
+</script>
+
+</body>
+</html>

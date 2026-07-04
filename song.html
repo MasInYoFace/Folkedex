@@ -139,13 +139,39 @@
         cursor: pointer;
         text-decoration: none;
     }
+    #analysis-btn {
+        width: 100px;
+        height: 25x;
+        line-height: 20px;
+        font-family: 'Fredoka One', cursive;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff8c0;
+        border: 3px solid #999;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0 #999;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    #topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
     </style>
 </head>
 
 <body>
 
-<div><a href="index.html" id="back-btn" title="Back to Folkedex" style="padding:8px 12px;" >Back</a></div>
+<div id="topBar">
+    <a href="index.html" id="back-btn" style="padding:8px 12px;">Back</a>
 
+    <button id="analysis-btn" style="padding:8px 12px;">
+        Export Analysis
+    </button>
+</div>
 
 <h1 id="song-title"></h1>
 
@@ -186,6 +212,13 @@ async function renderPDFasImages(url, container) {
         await page.render({ canvasContext: context, viewport: viewport }).promise;
     }
 }
+
+document.getElementById("analysis-btn").addEventListener("click", () => {
+    window.open(
+        `analysis.html?title=${encodeURIComponent(decodedTitle)}`,
+        "_blank"
+    );
+});
 
 Papa.parse("folksongs.csv", {
     download: true,
