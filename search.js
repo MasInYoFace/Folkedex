@@ -432,6 +432,15 @@ if (k === "Tone Set") {
     list = list
         .filter(v => normalize(v).includes(qNorm))
         .slice(0, maxItems);
+} else if (field === "all" || field === "Title") {
+    list = list
+        .filter(v => {
+            const title = v.toLowerCase();
+            const titleWithoutArticle = stripArticle(v);
+
+            return title.startsWith(q) || titleWithoutArticle.startsWith(q);
+        })
+        .slice(0, maxItems);
 } else {
     list = list
         .filter(v => v.toLowerCase().startsWith(q))
