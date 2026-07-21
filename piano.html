@@ -88,9 +88,9 @@ const WHITE_KEYS = [
 
 // Black keys
 const BLACK_KEYS = [
-    {note:"C#3", sol:"di,"},{note:"D#3", sol:"me,"},{note:"F#3", sol:"fi,"},{note:"G#3", sol:"si,"},{note:"A#3", sol:"te,"},
-    {note:"C#4", sol:"di"},{note:"D#4", sol:"me"},{note:"F#4", sol:"fi"},{note:"G#4", sol:"si"},{note:"A#4", sol:"te"},
-    {note:"C#5", sol:"di'"},{note:"D#5", sol:"me'"},{note:"F#5", sol:"fi'"},{note:"G#5", sol:"si'"},{note:"A#5", sol:"te'"}
+    {note:"C#3", sol:"di,"},{note:"D#3", sol:"ri,"},{note:"F#3", sol:"fi,"},{note:"G#3", sol:"si,"},{note:"A#3", sol:"te,"},
+    {note:"C#4", sol:"di"},{note:"D#4", sol:"ri"},{note:"F#4", sol:"fi"},{note:"G#4", sol:"si"},{note:"A#4", sol:"te"},
+    {note:"C#5", sol:"di'"},{note:"D#5", sol:"ri'"},{note:"F#5", sol:"fi'"},{note:"G#5", sol:"si'"},{note:"A#5", sol:"te'"}
 ];
 
 const piano = document.getElementById("piano");
@@ -136,7 +136,7 @@ document.getElementById("undo-btn").addEventListener("click",()=>{
     if(window.parent && window.parent.ACTIVE_SEARCH_BOX){
         const box = window.parent.ACTIVE_SEARCH_BOX;
         if(box.value.length>0){
-            const regex=/(di|me|fi|si|te|[drmfslmt])['\,]?$/i;
+            const regex=/(di|ri|fi|si|te|[drmfslmt])['\,]?$/i;
             const match = box.value.match(regex);
             if(match){
                 box.value = box.value.slice(0,match.index);
