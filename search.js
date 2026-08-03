@@ -239,10 +239,22 @@ window.initSearchAndTable = function () {
             if (!filters.length) return true;
 
             for (const f of filters) {
-                if (f.field === "Full Rhythm" || f.field === "Hardest Rhythmic") {
-                    const q = normalizeRhythm(f.query);
-                    const s = normalizeRhythm(song[f.field]);
-                    if (!s.some((_, i) => q.every((t, j) => t === s[i + j]))) return false;
+                if (f.field === "Full Rhythm") {
+                const q = normalizeRhythm(f.query);
+                const s = normalizeRhythm(song[f.field]);
+
+                if (!s.some((_, i) => q.every((t, j) => t === s[i + j]))) {
+                    return false;
+                }
+            } else if (f.field === "Hardest Rhythmic") {
+                const q = normalizeRhythm(f.query);
+                const s = normalizeRhythm(song[f.field]);
+
+                const isExactMatch =
+                    q.length === s.length &&
+                    q.every((token, index) => token === s[index]);
+
+                if (!isExactMatch) return false;
                 } else if (f.field === "Tone Set") {
                     if (
                         safeStr(song["Tone Set"]).toLowerCase().replace(/\s+/g, "") !==
@@ -252,6 +264,21 @@ window.initSearchAndTable = function () {
                     const q = normalizeMelody(f.query);
                     const s = normalizeMelody(song[f.field]);
                     if (!s.some((_, i) => q.every((t, j) => t === s[i + j]))) return false;
+                } else if (f.field === "Classroom Use") {
+                    const normalize = value =>
+                    safeStr(value)
+                    .toLowerCase()
+                    .replace(/\u00a0/g, " ")
+                    .replace(/\s+/g, " ")
+                    .trim();
+
+                    const query = normalize(f.query);
+                    const classroomUses = safeStr(song["Classroom Use"])
+                        .split(",")
+                        .map(normalize);
+
+                    if (!classroomUses.includes(query)) return false;
+                
                 } else if (f.field === "all") {
                     if (!song._searchBlob.all.includes(f.query.toLowerCase())) return false;
                 } else {

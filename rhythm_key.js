@@ -5,7 +5,7 @@ window.RHYTHM_KEY = {
     "z": "rest",
     "to": "to-o",
     "too": "to-o-o",
-    "tooo": "whole note",
+    "tooo": "to-o-o-o",
     "scp": "syn-co-pa",
     "ti": "single ti",
     "tmt": "tam-ti",
@@ -17,7 +17,9 @@ window.RHYTHM_KEY = {
     "ttk": "ti-tika",
     "ttm": "ti-tam",
     "ttt": "ti-ti-ti",
-    "tum": "tum"
+    "tum": "tum",
+    "tkk": "tika-ka"
+
 };
 
 // Normalize rhythm strings (metadata or user input)

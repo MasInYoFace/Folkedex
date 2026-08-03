@@ -221,13 +221,13 @@
         const marginBottom = 15;
         const pageHeight = doc.internal.pageSize.height;
         let y = marginTop;
+        
+        doc.setFontSize(18);
+doc.setFont("undefined", "normal");
+doc.text(pdfTitle, 10, y);
 
-        // Title
-        doc.setFontSize(16);
-        doc.setFont(undefined,'bold');
-        doc.text(pdfTitle, 10, y); 
-        doc.setFont(undefined,'normal');
-        y += 10;
+doc.setFont("helvetica", "normal");
+y += 10;
 
         // Filters subtitle
         doc.setFontSize(10);
@@ -244,33 +244,108 @@
 
         const checkedOptions = Array.from(document.querySelectorAll('.options input:checked')).map(c=>c.value);
 
-        doc.setFontSize(12);
-        filteredSongs.forEach((song,i)=>{
-            // Title line
-            if(y > pageHeight - marginBottom){
-                doc.addPage();
-                y = marginTop;
-            }
-            doc.setFont(undefined,'bold');
-            doc.text(`${i+1}. ${song.Title}`, 10, y);
-            doc.setFont(undefined,'normal');
-            y += 6;
+        //Proper wrapping 
+const pageWidth = doc.internal.pageSize.width;
 
-            // Metadata lines
-            checkedOptions.forEach(key=>{
-                if(song[key]){
-                    if(y > pageHeight - marginBottom){
-                        doc.addPage();
-                        y = marginTop;
-                    }
-                    doc.text(`${key}: ${song[key]}`, 14, y);
-                    y += 6;
-                }
-            });
+function writeWrappedText(text, x, lineHeight = 6) {
+    const maxWidth = pageWidth - x - 10;
+    const lines = doc.splitTextToSize(String(text), maxWidth);
 
-            y += 4; // spacing after song
+    lines.forEach(line => {
+        if (y + lineHeight > pageHeight - marginBottom) {
+            doc.addPage();
+            y = marginTop;
+        }
+
+        doc.text(line, x, y);
+        y += lineHeight;
+    });
+}
+
+const songTitleFontSize = 12;
+const categoryFontSize = 10;
+const metadataFontSize = 10;
+
+function drawMetadataTable(song, fields) {
+    const tableX = 14;
+    const tableWidth = pageWidth - tableX - 10;
+    const labelWidth = 42;
+    const valueWidth = tableWidth - labelWidth;
+    const cellPadding = 2;
+    const lineHeight = 5;
+
+    fields.forEach(key => {
+        if (!song[key]) return;
+
+        doc.setFontSize(categoryFontSize);
+        const labelLines = doc.splitTextToSize(
+            key,
+            labelWidth - cellPadding * 2
+        );
+
+        doc.setFontSize(metadataFontSize);
+        const valueLines = doc.splitTextToSize(
+            String(song[key]),
+            valueWidth - cellPadding * 2
+        );
+
+        const lineCount = Math.max(labelLines.length, valueLines.length);
+        const rowHeight = lineCount * lineHeight + cellPadding * 2;
+
+        if (y + rowHeight > pageHeight - marginBottom) {
+            doc.addPage();
+            y = marginTop;
+        }
+
+        doc.setFillColor(245, 245, 245);
+        doc.rect(tableX, y, labelWidth, rowHeight, "F");
+        doc.rect(tableX, y, tableWidth, rowHeight, "S");
+        doc.line(
+            tableX + labelWidth,
+            y,
+            tableX + labelWidth,
+            y + rowHeight
+        );
+
+        doc.setFont(undefined, "italic");
+        doc.setFontSize(categoryFontSize);
+        labelLines.forEach((line, index) => {
+            doc.text(
+                line,
+                tableX + cellPadding,
+                y + cellPadding + lineHeight * (index + 1)
+            );
         });
 
+        doc.setFont(undefined, "normal");
+        doc.setFontSize(metadataFontSize);
+        valueLines.forEach((line, index) => {
+            doc.text(
+                line,
+                tableX + labelWidth + cellPadding,
+                y + cellPadding + lineHeight * (index + 1)
+            );
+        });
+
+        y += rowHeight;
+    });
+}
+
+        doc.setFontSize(12);
+
+        
+       filteredSongs.forEach((song, i) => {
+    doc.setFontSize(songTitleFontSize);
+    doc.setFont(undefined, "bold");
+    writeWrappedText(`${i + 1}. ${song.Title}`, 10);
+
+    y -= 4;
+
+    doc.setFont(undefined, "normal");
+    drawMetadataTable(song, checkedOptions);
+
+    y += 5;
+});
         doc.save(`${pdfTitle.replace(/\s+/g,'_')}.pdf`);
     });
 
