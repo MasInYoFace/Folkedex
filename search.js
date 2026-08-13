@@ -51,6 +51,7 @@ window.initSearchAndTable = function () {
     const AUTOCOMPLETE_DISABLED_FIELDS = new Set([
         "Full Melody",
         "Full Rhythm",
+        "Melodic Context",
         "Grade Level"
     ]);
 
@@ -239,13 +240,14 @@ window.initSearchAndTable = function () {
             if (!filters.length) return true;
 
             for (const f of filters) {
-                if (f.field === "Full Rhythm") {
-                const q = normalizeRhythm(f.query);
-                const s = normalizeRhythm(song[f.field]);
+                if (f.field === "Full Rhythm" || f.field === "Rhythm Match") {
+    const q = normalizeRhythm(f.query);
+    const rhythmField = f.field === "Rhythm Match" ? "Full Rhythm" : f.field;
+    const s = normalizeRhythm(song[rhythmField]);
 
-                if (!s.some((_, i) => q.every((t, j) => t === s[i + j]))) {
-                    return false;
-                }
+    if (!s.some((_, i) => q.every((t, j) => t === s[i + j]))) {
+        return false;
+    }
             } else if (f.field === "Hardest Rhythmic") {
                 const q = normalizeRhythm(f.query);
                 const s = normalizeRhythm(song[f.field]);
@@ -279,6 +281,35 @@ window.initSearchAndTable = function () {
 
                     if (!classroomUses.includes(query)) return false;
                 
+                } else if (f.field === "Rhythmic Content") {
+    const normalizeElement = value => normalizeRhythm(value).join("-");
+
+    const queryElements = f.query
+        .split(/[\s,]+/)
+        .filter(Boolean)
+        .map(normalizeElement);
+
+    const contentElements = safeStr(song["Rhythmic Content"])
+        .split(",")
+        .map(value => value.trim())
+        .filter(Boolean)
+        .map(normalizeElement);
+
+    if (!queryElements.every(element => contentElements.includes(element))) {
+        return false;
+    }
+    } else if (f.field === "Melodic Context") {
+    const tokenizeMelody = value =>
+        safeStr(value).toLowerCase().match(/[drmfslt][,']?/g) || [];
+
+    const queryNotes = tokenizeMelody(f.query);
+    const songNotes = tokenizeMelody(song["Melodic Context"]);
+
+    const hasSequence = songNotes.some((_, start) =>
+        queryNotes.every((note, offset) => note === songNotes[start + offset])
+    );
+
+    if (!hasSequence) return false;
                 } else if (f.field === "all") {
                     if (!song._searchBlob.all.includes(f.query.toLowerCase())) return false;
                 } else {
