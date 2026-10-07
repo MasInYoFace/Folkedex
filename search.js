@@ -130,7 +130,54 @@ window.initSearchAndTable = function () {
         createdRow: function(row, song) {
             renderMetadataPreview(row, song);
         }
+
+        
     });
+
+     // Add the random-song button handler here
+    $('#random-song-button').on('click', function () {
+    const matches = table
+        .rows({ search: 'applied' })
+        .data()
+        .toArray()
+        .filter(song => song && song.Title);
+
+    if (!matches.length) {
+        alert('No songs match the current filters.');
+        return;
+    }
+
+    const button = this;
+    const display = document.getElementById('random-song-display');
+
+    button.disabled = true;
+
+    const cycle = setInterval(() => {
+        const preview = matches[Math.floor(Math.random() * matches.length)];
+        display.textContent = preview.Title;
+    }, 50);
+
+    setTimeout(() => {
+        clearInterval(cycle);
+
+        const song = matches[Math.floor(Math.random() * matches.length)];
+        display.textContent = song.Title;
+
+        // Leave the selected title visible briefly, then open it.
+        setTimeout(() => {
+            window.location.href =
+                'song.html?title=' + encodeURIComponent(song.Title);
+        }, 350);
+    }, 500);
+});
+
+window.addEventListener('pageshow', function () {
+    const display = document.getElementById('random-song-display');
+    const button = document.getElementById('random-song-button');
+
+    if (display) display.textContent = '';
+    if (button) button.disabled = false;
+});
 
     // --------------------
     // LAZY LOAD THUMBNAILS + METADATA

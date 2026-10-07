@@ -219,53 +219,99 @@
     color: #676767;
 }
 
-#go-btn {
-    background-color: #a5fe99;
-    border: 2px solid #999;
-    border-radius: 6px;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 16px;
-    color: #333;
-}
-#go-btn:hover {
-    background-color: #7ee071;
-}
+#go-btn,
 .go-button {
     display: flex;
-    flex-direction: column; /* stack main + sub text vertically */
-    align-items: center;    /* horizontal center */
-    justify-content: center;/* vertical center */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 50px;
     padding: 8px 12px;
-    width: 70px;            /* adjust as needed */
-    height: 50px;           /* adjust as needed */
-    background-color: #b5ffab;
-    border: 1px solid #999;
+    border: 2px solid #999;
     border-radius: 6px;
     box-shadow: 2px 2px 0 #999;
-    cursor: pointer;
-    text-decoration: none;
-    font-family: Arial, sans-serif;
+    background: #b5ffab;
     color: #333;
-    font-size: 16px;
+    cursor: pointer;
+    font: 16px Arial, sans-serif;
     line-height: 1;
     text-align: center;
+    text-decoration: none;
 }
 
+#go-btn:hover,
 .go-button:hover {
-    background-color: #96ff88;
+    background: #96ff88;
 }
 
 .go-button .main-text {
-    font-size: 16px;
     font-weight: bold;
 }
 
 .go-button .sub-text {
-    font-size: 9px;
-    margin-top: 2px; /* small spacing under Go! */
+    margin-top: 2px;
     color: #676767;
+    font-size: 9px;
 }
+
+.random-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 50px;
+    padding: 8px 12px;
+    border: 2px solid #999;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 #999;
+    background: #ffdd81;
+    color: #333;
+    cursor: pointer;
+    font: 16px Arial, sans-serif;
+    line-height: 1;
+    text-align: center;
+}
+
+
+.random-button .main-text {
+    font-weight: bold;
+}
+
+.random-button .sub-text {
+    margin-top: 2px;
+    color: #676767;
+    font-size: 9px;
+}
+
+.random-button:hover {
+    animation: rainbow-color 2s linear infinite;
+}
+
+@keyframes rainbow-color {
+    to { filter: hue-rotate(360deg); }
+}
+
+.random-song-group {
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+}
+
+#random-song-display {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    min-height: 1.5em;
+    margin-top: 6px;
+    text-align: center;
+    font-weight: bold;
+}
+
 </style>
 
 <body>
@@ -314,8 +360,16 @@
   <span class="sub-text"></span>
 </button>
 
+<div class="random-song-group">
+    <button id="random-song-button" class="random-button" type="button">
+        <span class="main-text">Random</span>
+        <span class="sub-text">From filtered list</span>
+    </button>
+    <div id="random-song-display" aria-live="polite"></div>
+</div>
 
 </div>
+
 
 
 <div id="extra-filters"></div>
@@ -409,174 +463,32 @@ function toggleIframe(selector, button) {
     });
 }
 
-Papa.parse("folksongs.csv", {
-    download: true,
-    header: true,
-    complete: function(results) {
-        window.ALL_SONGS = results.data || [];
-        initSearchAndTable();
-        const sb = document.getElementById("search-box");
-        if (sb) { window.ACTIVE_SEARCH_BOX = sb; sb.focus(); }
-    }
-});
+document.addEventListener("DOMContentLoaded", function () {
+    Papa.parse("folksongs.csv", {
+        download: true,
+        header: true,
+        complete: function (results) {
+            window.ALL_SONGS = (results.data || []).filter(song => song && song.Title);
 
-$(document).on("click", "#export-btn", function () {
-    if (typeof saveFilteredStateForExport === "function") saveFilteredStateForExport();
-    location.href = "export.html";
-});
-
-// --------------------
-// Override initSearchAndTable with pagination + lazy thumbnails
-// --------------------
-window.initSearchAndTable = function() {
-
-    const data = window.ALL_SONGS;
-
-    function safeStr(v){ return v==null?"":String(v); }
-    function stripArticle(title){ return safeStr(title).toLowerCase().replace(/^(the|an|a|el)\s+/i,"").trim(); }
-
-    // preprocess search blob
-    data.forEach(song => {
-        song._searchBlob = {};
-        for(const key in song){ song._searchBlob[key]=safeStr(song[key]).toLowerCase(); }
-        song._searchBlob.all = Object.values(song._searchBlob).join(" ");
-    });
-
-    // lazy thumbnail loader
-    async function loadThumbnail(pdfPath, canvas, w){
-        if(!pdfPath||!canvas) return;
-        const pdf = await pdfjsLib.getDocument(pdfPath).promise;
-        const page = await pdf.getPage(1);
-        const vp = page.getViewport({scale:1});
-        const scale = (w*2.5)/vp.width;
-        const svp = page.getViewport({scale});
-        canvas.width=svp.width;
-        canvas.height=svp.height;
-        await page.render({canvasContext:canvas.getContext("2d"), viewport:svp}).promise;
-        canvas.style.width=w+"px";
-
-    }
-
-$.fn.dataTable.ext.search.push(function (settings, rowData, dataIndex) {
-    const song = rowData; // because you're using object data
-    if (!window.ACTIVE_FILTERS || !window.ACTIVE_FILTERS.length) return true;
-
-    for (const f of window.ACTIVE_FILTERS) {
-        if (f.field === "all") {
-            if (!song._searchBlob.all.includes(f.query.toLowerCase())) return false;
-        } else {
-            if (!(song._searchBlob[f.field] || "")
-                .includes(f.query.toLowerCase())) return false;
-        }
-    }
-    return true;
-});
-
-    const table = $('#songs').DataTable({
-        data,
-        pageLength: 50,
-        dom: 't<"bottom"ip>',
-        order:[[0,"asc"]],
-        columns:[{
-            data:"Title",
-            render:function(title,type,song){
-                title=safeStr(title);
-                if(type==="sort") return stripArticle(title);
-                if(type==="filter") return title;
-                let thumb="";
-                if(song&&song.PDFs){
-                    const id="thumb-"+Math.random().toString(36).slice(2);
-                    thumb=`<div class="thumbnail-container" data-title="${title}"><canvas id="${id}" class="thumbnail"></canvas></div>`;
-                }
-                return `<div class="song-row">${thumb}<div><span class="title-link" data-title="${title}">${title}</span><div class="song-meta-preview"></div></div></div>`;
+            if (typeof window.initSearchAndTable !== "function") {
+                console.error("Search initialization was not loaded.");
+                return;
             }
-        }],
-        createdRow:function(row,song){
-            renderMetadataPreview(row,song); 
-            // thumbnails will be loaded lazily below
+
+            window.initSearchAndTable();
+
+            const searchBox = document.getElementById("search-box");
+            if (searchBox) {
+                window.ACTIVE_SEARCH_BOX = searchBox;
+                searchBox.focus();
+            }
+        },
+        error: function (error) {
+            console.error("Could not load folksongs.csv:", error);
         }
     });
+});
 
-    function renderMetadataPreview(row,song){
-        const container=row.querySelector('.song-meta-preview');
-        if(!container) return;
-        const fields=$('.preview-meta:checked').map(function(){return this.value;}).get();
-        container.innerHTML="";
-        const canvas=row.querySelector("canvas");
-        if(canvas) canvas.style.display=fields.includes("Hide Thumbnails")?"none":"block";
-        fields.forEach(key=>{
-            if(key!=="Hide Thumbnails"&&song[key]){
-                const div=document.createElement("div"); div.textContent=`${key}: ${song[key]}`; container.appendChild(div);
-            }
-        });
-    }
-
-    $(document).on('change','.preview-meta',()=>{ table.rows().every(function(){ renderMetadataPreview(this.node(),this.data()); }); });
-
-    // Lazy load thumbnails for visible rows
-    function lazyLoadThumbnails(){
-        table.rows({page:'current'}).every(function(){
-            const row=this.node();
-            const canvas=row.querySelector("canvas");
-            if(canvas && !canvas.dataset.loaded){
-                const song=this.data();
-                if(song.PDFs){
-                    const pdf="pdfs/"+safeStr(song.PDFs).split(",")[0].trim();
-                    loadThumbnail(pdf,canvas,400);
-                    canvas.dataset.loaded="true";
-                }
-            }
-        });
-    }
-    table.on('draw', lazyLoadThumbnails);
-    lazyLoadThumbnails();
-
-
-    // search logic
-  function performSearch() {
-    const filters = [];
-
-    const mainQuery = $('#search-box').val().trim();
-    const mainField = $('#search-field').val() || "all";
-    if (mainQuery) filters.push({ field: mainField, query: mainQuery });
-
-    $('#extra-filters .multi-filter').each(function () {
-        const query = $(this).find('input').val().trim();
-        const field = $(this).find('select').val();
-        if (query) filters.push({ field, query });
-    });
-
-    window.ACTIVE_FILTERS = filters;
-    table.page.len(50);
-    table.page(0);
-    table.draw(true);
-
-    const filteredCount = table.rows({ filter: 'applied' }).count();
-    if (filteredCount <= 50) {
-        table.page.len(filteredCount || 1);
-    } else {
-        table.page.len(50);
-    }
-    table.page(0).draw(true);
-
-    window.saveFilteredStateForExport?.();
-}
-
-    $('#search-box,#search-field').on('input change',performSearch);
-    $('#extra-filters').on('input change','input,select',performSearch);
-
-    $(document).on('click','.title-link,.thumbnail-container',function(){
-        const title=$(this).data('title');
-        if(title) location.href='song.html?title='+encodeURIComponent(title);
-    });   
-
-
-}
-
-</script>
-
-
-<script>
 document.getElementById('list-link-btn').addEventListener('click', function() {
     const field = document.getElementById('search-field').value;
 
