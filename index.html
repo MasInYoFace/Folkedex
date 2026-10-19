@@ -58,8 +58,7 @@
         .song-meta-preview { font-size:18px; max-width:800px; }
         .song-meta-preview div { margin-bottom:3px; }
         .thumbnail-container { position:relative; display:inline-block; }
-        .thumbnail { width:400px; border:1px solid #ccc; box-shadow:0 0 4px rgba(0,0,0,0.2); transition:transform 0.2s ease-in-out; cursor:zoom-in; display:block; }
-        .thumbnail-container:hover .thumbnail { transform:scale(1.5); position:absolute; top:-50%; z-index:9999; }
+        .thumbnail { width:400px; border:0; box-shadow:none; transition:none; cursor:default; display:block; }
         .title-link { font-size:24px; font-weight:bold; cursor:pointer; color:#0066cc; }
         .title-link:hover { text-decoration:underline; }
         .collapsible-container { text-align:center; margin-bottom:1px; }
@@ -70,14 +69,15 @@
         .multi-filter select { padding:8px 12px; font-size:16px; border-radius:6px; border:1px solid #999; cursor:pointer; }
         .multi-filter .remove-filter { padding:5px 8px; font-size:12px; cursor:pointer; border-radius:4px; border:1px solid #999; background-color:#f0f0f0; }
         #extra-filters { text-align:center; margin-bottom:10px; }
-        #preview-options { text-align:center; margin-bottom:12px; font-size:15px; z-index:99; }
-        #preview-options label { margin-right:8px; white-space:nowrap; z-index:99;}
+        #preview-options { box-sizing:border-box; width:fit-content; max-width:calc(100% - 24px); margin:12px auto; padding:1px 18px; border:3px solid #8b6a3e; border-radius:14px; background:linear-gradient(145deg, #fffdf0, #fff4c9); box-shadow:3px 4px 0 #c5a76e, 0 5px 14px rgba(75, 55, 25, .14); text-align:center; font-size:15px; line-height:1.8; z-index:99; }
+        #preview-options strong { display:inline-block; margin-bottom:5px; color:#0066cc; font-size:14px; line-height:1.3; }
+        #preview-options label { display:inline-block; margin:0 8px 2px 0; white-space:nowrap; z-index:99;}
         #filter-template { display:none; }
         
        body {
         font-family: Arial, sans-serif;
         margin: 20px;
-        background-color: #fffee0;
+        background-color: #fffaea;
     }
 
     /* Top bar layout: help button, title, shortcut menu */
@@ -86,6 +86,8 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 20px;
+        position: relative;
+        z-index: 20;
     }
 
     /* Help button */
@@ -119,6 +121,7 @@
     #shortcutMount {
         width: 120px; /* adjust as needed */
         position: relative;
+        z-index: 21;
     }
 
     /* Shortcut list styles */
@@ -140,7 +143,12 @@
         margin-left: -50px;
     }
 
+    #shortcutMenu:hover {
+    background-color: #fee6a3;
+}
+
     #shortcutList {
+        position: relative;
         list-style: none;
         padding: 0;
         margin: 0;
@@ -169,7 +177,7 @@
     }
 
     .shortcut-item:hover {
-        background-color: #f0e68c;
+        background-color: #fee6a3;
     }
 
     /* Search container */
@@ -245,6 +253,100 @@
     background: #96ff88;
 }
 
+#add-filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 70px;
+    height: 30px;
+    padding: 8px 12px;
+    border: 2px solid #999;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 #999;
+    background: #fff8c0;
+    color: #333;
+    cursor: pointer;
+    font: 10px Arial, sans-serif;
+    line-height: 1;
+    text-align: center;
+}
+
+#add-filter:hover {
+    background: #fff5a6;
+}
+
+#piano-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80px;
+    height: 20px;
+    padding: 8px 12px;
+    border: 2px solid #999;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 #999;
+    background: #ffff93;
+    color: #333;
+    cursor: pointer;
+    font: 8px Arial, sans-serif;
+    line-height: 1;
+    text-align: center;
+}
+
+#piano-toggle:hover {
+    background: #f0f087;
+}
+
+#rhythm-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100px;
+    height: 20px;
+    padding: 8px 12px;
+    border: 2px solid #999;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 #999;
+    background: #ffff93;
+    color: #333;
+    cursor: pointer;
+    font: 8px Arial, sans-serif;
+    line-height: 1;
+    text-align: center;
+}
+
+#rhythm-toggle:hover {
+    background: #f0f087;
+}
+
+#export-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 2px solid #999;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 #999;
+    background: #dfc8ff;
+    color: #333;
+    cursor: pointer;
+    font: bold 10px Arial, sans-serif;
+    line-height: 1.1;
+    text-align: center;
+}
+
+#export-btn:hover {
+    background: #cfadff;
+}
+
 .go-button .main-text {
     font-weight: bold;
 }
@@ -260,13 +362,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 80px;
+    width: 95px;
     height: 50px;
     padding: 8px 12px;
     border: 2px solid #999;
     border-radius: 6px;
     box-shadow: 2px 2px 0 #999;
-    background: #ffdd81;
+    background: #bbfff3;
     color: #333;
     cursor: pointer;
     font: 16px Arial, sans-serif;
@@ -295,6 +397,7 @@
 
 .random-song-group {
     position: relative;
+    z-index: 1;
     align-self: stretch;
     display: flex;
     align-items: center;
@@ -312,6 +415,52 @@
     font-weight: bold;
 }
 
+
+    /* Responsive trading-card song results */
+    #songs { width: 100% !important; border-collapse: separate !important; border-spacing: 0 !important; }
+    #songs thead { display: none; }
+    #songs tbody { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 10px 4px 18px; }
+    #songs tbody tr { display: block; min-width: 0; border: 0 !important; outline: 0 !important; background: transparent !important; box-shadow: none !important; }
+    #songs tbody td { display: block; height: 100%; padding: 0 !important; border: 0 !important; outline: 0 !important; background: transparent !important; box-shadow: none !important; }
+    .song-row { box-sizing: border-box; height: 100%; min-height: 100%; padding: 14px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; overflow: hidden; border: 3px solid #8b6a3e; border-radius: 14px; background: linear-gradient(145deg, #fffdf0, #fff4c9); background-clip: padding-box; box-shadow: calc(3px + var(--card-shadow-x, 0px)) calc(4px + var(--card-shadow-y, 0px)) 0 #c5a76e, var(--card-shadow-x, 0px) calc(5px + var(--card-shadow-y, 0px)) 14px rgba(75, 55, 25, .14); transform: perspective(900px) rotateX(var(--card-rotate-x, 0deg)) rotateY(var(--card-rotate-y, 0deg)); transform-style: preserve-3d; transition: transform 180ms ease, box-shadow 180ms ease; }
+    .song-row:hover { z-index: 5; box-shadow: calc(4px + var(--card-shadow-x, 0px)) calc(7px + var(--card-shadow-y, 0px)) 0 #c5a76e, var(--card-shadow-x, 0px) calc(9px + var(--card-shadow-y, 0px)) 20px rgba(75, 55, 25, .2); }
+    .song-row::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(var(--shine-angle, 135deg), transparent calc(var(--shine-position, 50%) - 25%), rgba(255, 255, 255, .04) calc(var(--shine-position, 50%) - 13%), rgba(255, 255, 255, .3) calc(var(--shine-position, 50%) - 3%), rgba(255, 255, 255, .62) var(--shine-position, 50%), rgba(255, 248, 205, .24) calc(var(--shine-position, 50%) + 4%), rgba(255, 255, 255, .05) calc(var(--shine-position, 50%) + 14%), transparent calc(var(--shine-position, 50%) + 25%)); opacity: var(--shine-opacity, 0); pointer-events: none; transition: opacity 180ms ease; z-index: 4; }
+    .song-card-title { order: 0; min-height: 2.4em; display: flex; align-items: center; justify-content: center; padding: 3px 2px 9px; border-bottom: 2px solid #d9c28e; text-align: center; }
+    .song-card-title .title-link { font-size: clamp(17px, 1.5vw, 22px); line-height: 1.25; }
+    .song-row { position: relative; }
+    .song-row > .thumbnail-container { order: 1; position: relative; box-sizing: border-box; width: 100%; height: 190px; display: flex; align-items: center; justify-content: center; overflow: visible !important; background: #fff; border: 1px solid #d5d5d5; }
+    #songs.list-view .thumbnail-container { display: none !important; }
+    .song-row .thumbnail { box-sizing: border-box; display: block; position: absolute; top: 50%; left: 50%; width: auto !important; height: auto !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain; object-position: center; background: #fff; transform: translate(-50%, -50%); z-index: 1; }
+    #songs .song-row canvas.thumbnail { border: 0 !important; box-shadow: none !important; outline: 0 !important; filter: none !important; }
+    .song-meta-preview { order: 2; box-sizing: border-box; width: 100%; max-width: none; font-size: 14px; line-height: 1.4; }
+    .song-meta-preview div { margin-bottom: 5px; }
+    .song-meta-preview > div > strong { font-weight: 700; }
+    .song-meta-preview > div > span { font-weight: 400; }
+    .song-meta-preview .title-link { display: none; }
+    .song-row > :not(.song-card-title):not(.thumbnail-container):not(.song-meta-preview) { order: 3; }
+    #songs_wrapper .dataTables_info, #songs_wrapper .dataTables_paginate { margin-top: 8px; }
+    @media (max-width: 900px) {
+        #songs tbody { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+        body { margin: 12px; }
+        #songs tbody { grid-template-columns: 1fr; gap: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .song-row { transform: none; transition: none; }
+        .song-row::after { transition: none; }
+    }
+    #pdf-hover-preview { display: none; position: fixed; left: 50vw; top: 50vh; transform: translate(-50%, -50%); z-index: 2147483647; box-sizing: border-box; border: 2px solid #8b6a3e; background: #fff; box-shadow: 0 8px 28px rgba(0, 0, 0, .45); overflow: hidden; pointer-events: auto; }
+    #pdf-hover-preview > canvas { display: block; width: 100%; height: 100%; }
+
+    /* Restore the compact list layout while thumbnail previews are hidden */
+    #songs.list-view tbody { display: block; padding: 8px 0; }
+    #songs.list-view tbody tr { display: block; margin: 0 0 8px; padding: 0 0 10px; border-bottom: 1px solid #d8d1b8 !important; background: transparent !important; }
+    #songs.list-view tbody td { height: auto; padding: 0 !important; background: transparent !important; }
+    #songs.list-view .song-row { height: auto; min-height: 0; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; align-items: stretch; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    #songs.list-view .song-card-title { min-height: 0; justify-content: flex-start; padding: 0; border: 0; text-align: left; }
+    #songs.list-view .song-card-title .title-link { font-size: 24px; }
+    #songs.list-view .song-meta-preview { font-size: 18px; }
 </style>
 
 <body>
@@ -407,21 +556,17 @@
 
 
 <div class="collapsible-container">
-    <button class="collapsible-button" onclick="toggleIframe('#piano-container', this)">Hide Piano</button>
+    <button id="piano-toggle" class="collapsible-button" onclick="toggleIframe('#piano-container', this)">Hide Piano</button>
     <div id="piano-container">
         <iframe src="piano.html" class="collapsible-iframe" style="height:145px;"></iframe>
     </div>
 </div>
 
 <div class="collapsible-container">
-    <button class="collapsible-button" onclick="toggleIframe('#rhythm-container', this)">Hide Rhythm Input</button>
+    <button id="rhythm-toggle" class="collapsible-button" onclick="toggleIframe('#rhythm-container', this)">Hide Rhythm Input</button>
     <div id="rhythm-container">
         <iframe src="rhythm.html" class="collapsible-iframe" style="height:175px;"></iframe>
     </div>
-</div>
-
-<div style="text-align:center; margin-bottom:10px;">
-    <button id="export-btn" class="collapsible-button">Export Filtered List as PDF</button>
 </div>
 
 <div id="preview-options">
@@ -442,7 +587,11 @@
     <label><input type="checkbox" class="preview-meta" value="Meter"> Meter</label>
     <label><input type="checkbox" class="preview-meta" value="Melodic Form"> Melodic Form</label>
     <label><input type="checkbox" class="preview-meta" value="Rhythmic Form"> Rhythmic Form</label>
-    <label><input type="checkbox" class="preview-meta" value="Hide Thumbnails"> Hide Thumbnails</label>
+    <label><input type="checkbox" class="preview-meta" value="Hide Thumbnails"> Hide Thumbnails/List Mode</label>
+</div>
+
+<div style="display:flex; justify-content:center; margin:10px 0;">
+    <button id="export-btn" class="collapsible-button">Export Filtered List as PDF</button>
 </div>
 
 <table id="songs" class="display">
@@ -454,6 +603,90 @@
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
+function arrangeSongCards() {
+    document.querySelectorAll("#songs tbody .song-row").forEach(function (card) {
+        if (card.querySelector(":scope > .song-card-title")) return;
+        const title = card.querySelector(".song-meta-preview .title-link, .title-link");
+        if (title) {
+            const titleSlot = document.createElement("div");
+            titleSlot.className = "song-card-title";
+            titleSlot.appendChild(title);
+            card.insertBefore(titleSlot, card.firstChild);
+        }
+    });
+}
+
+let thumbnailHoverTimer = null;
+let activeThumbnailContainer = null;
+let activeThumbnailCopy = null;
+
+function showThumbnailZoom(container) {
+    const source = container.querySelector("canvas.thumbnail");
+    const overlay = document.getElementById("pdf-hover-preview");
+    if (!source || !overlay || activeThumbnailCopy) return;
+
+    const pixelWidth = source.width || 1;
+    const pixelHeight = source.height || 1;
+    const maxWidth = Math.min(window.innerWidth * 0.5, 1100);
+    const maxHeight = window.innerHeight * 0.5;
+    const scale = Math.min(maxWidth / pixelWidth, maxHeight / pixelHeight);
+    const width = pixelWidth * scale;
+    const height = pixelHeight * scale;
+
+    const copy = document.createElement("canvas");
+    copy.className = "pdf-hover-copy";
+    copy.width = pixelWidth;
+    copy.height = pixelHeight;
+    copy.getContext("2d").drawImage(source, 0, 0);
+    activeThumbnailCopy = copy;
+    activeThumbnailContainer = container;
+    overlay.replaceChildren(copy);
+    overlay.style.width = width + "px";
+    overlay.style.height = height + "px";
+    overlay.style.display = "block";
+}
+
+function hideThumbnailZoom() {
+    clearTimeout(thumbnailHoverTimer);
+    thumbnailHoverTimer = null;
+    activeThumbnailCopy = null;
+    activeThumbnailContainer = null;
+    const overlay = document.getElementById("pdf-hover-preview");
+    if (overlay) {
+        overlay.style.display = "none";
+        overlay.replaceChildren();
+    }
+}
+
+document.addEventListener("click", function (event) {
+    if (!event.target.closest("#pdf-hover-preview")) return;
+    const title = activeThumbnailContainer?.dataset.title;
+    if (title) window.location.href = "song.html?title=" + encodeURIComponent(title);
+});
+document.addEventListener("pointerover", function (event) {
+    const overlay = document.getElementById("pdf-hover-preview");
+    if (overlay && overlay.contains(event.target)) return;
+    const container = event.target.closest(".song-row .thumbnail-container");
+    if (!container || container.contains(event.relatedTarget)) return;
+    clearTimeout(thumbnailHoverTimer);
+    if (activeThumbnailCopy) hideThumbnailZoom();
+    thumbnailHoverTimer = setTimeout(function () {
+        if (container.matches(":hover")) showThumbnailZoom(container);
+    }, 1500);
+});
+
+document.addEventListener("pointerout", function (event) {
+    const overlay = document.getElementById("pdf-hover-preview");
+    const container = event.target.closest(".song-row .thumbnail-container");
+    if (container && !container.contains(event.relatedTarget)) {
+        if (overlay && overlay.contains(event.relatedTarget)) return;
+        hideThumbnailZoom();
+    }
+    if (overlay && overlay.contains(event.target) && !overlay.contains(event.relatedTarget)) {
+        if (activeThumbnailContainer && activeThumbnailContainer.contains(event.relatedTarget)) return;
+        hideThumbnailZoom();
+    }
+});
 function toggleIframe(selector, button) {
     const $iframe = $(selector);
     $iframe.slideToggle(200, () => {
@@ -464,6 +697,24 @@ function toggleIframe(selector, button) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Briefly show the piano and rhythm inputs on page load, then collapse them.
+    [
+        ["#piano-container", "Show Piano", 1750],
+        ["#rhythm-container", "Show Rhythm Input", 1500]
+    ].forEach(function ([selector, showLabel, delay]) {
+        setTimeout(function () {
+            const $container = $(selector);
+            if ($container.is(":visible")) {
+                const button = document.querySelector(
+                    'button[onclick*="' + selector + '"]'
+                );
+                $container.slideUp(700, "swing", function () {
+                    if (button) button.textContent = showLabel;
+                });
+            }
+        }, delay);
+    });
+
     Papa.parse("folksongs.csv", {
         download: true,
         header: true,
@@ -476,6 +727,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             window.initSearchAndTable();
+            arrangeSongCards();
+            if (window.jQuery && jQuery.fn.DataTable && jQuery.fn.DataTable.isDataTable("#songs")) {
+                jQuery("#songs").on("draw.dt", arrangeSongCards);
+            }
 
             const searchBox = document.getElementById("search-box");
             if (searchBox) {
@@ -506,6 +761,10 @@ document.getElementById('list-link-btn').addEventListener('click', function() {
 
     // Otherwise, go to list.html with hash
     window.location.href = "list.html#" + anchor;
+});
+
+document.getElementById('export-btn').addEventListener('click', function() {
+    window.location.href = "export.html";
 });
 </script>
 <script>
@@ -614,6 +873,115 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+    <div id="pdf-hover-preview" aria-hidden="true"></div>
+<script>
+(function () {
+    const table = document.getElementById("songs");
+    const hideThumbnails = document.querySelector('.preview-meta[value="Hide Thumbnails"]');
+    if (!table || !hideThumbnails) return;
+    const syncView = () => table.classList.toggle("list-view", hideThumbnails.checked);
+    hideThumbnails.addEventListener("change", syncView);
+    syncView();
+})();
+
+(function () {
+    const table = document.getElementById("songs");
+    if (!table) return;
+
+    function formatMetadataLabels(root) {
+        root.querySelectorAll(".song-meta-preview > div").forEach(function (item) {
+            if (item.dataset.metaFormatted === "true") return;
+            const text = item.textContent || "";
+            const colon = text.indexOf(":");
+            if (colon < 0) return;
+
+            const label = document.createElement("strong");
+            label.textContent = text.slice(0, colon + 1);
+            const value = document.createElement("span");
+            value.textContent = text.slice(colon + 1);
+            item.replaceChildren(label, value);
+            item.dataset.metaFormatted = "true";
+        });
+    }
+
+    formatMetadataLabels(table);
+    new MutationObserver(function () {
+        formatMetadataLabels(table);
+    }).observe(table, { childList: true, characterData: true, subtree: true });
+})();
+
+(function () {
+    const table = document.getElementById("songs");
+    if (!table) return;
+
+    table.addEventListener("pointermove", function (event) {
+        const card = event.target.closest(".song-row");
+        if (!card) return;
+        const rect = card.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        const rotateX = (0.5 - y) * 6;
+        const rotateY = (x - 0.5) * 6;
+        card.style.setProperty("--card-rotate-x", rotateX + "deg");
+        card.style.setProperty("--card-rotate-y", rotateY + "deg");
+        card.style.setProperty("--card-shadow-x", (-rotateY * 0.8) + "px");
+        card.style.setProperty("--card-shadow-y", (rotateX * 0.8) + "px");
+        const shineAngle = 135 + rotateY * 3 - rotateX * 2;
+        const shineRadians = shineAngle * Math.PI / 180;
+        const shineProjection = (x - 0.5) * Math.cos(shineRadians) + (y - 0.5) * Math.sin(shineRadians);
+        const shinePosition = Math.max(25, Math.min(75, 50 + shineProjection * 70));
+        card.style.setProperty("--shine-angle", shineAngle + "deg");
+        card.style.setProperty("--shine-position", shinePosition.toFixed(1) + "%");
+        const distance = Math.min(1, Math.hypot(x - 0.5, y - 0.5) / Math.hypot(0.5, 0.5));
+        card.style.setProperty("--shine-opacity", (0.32 + distance * 0.28).toFixed(2));
+    });
+
+    table.addEventListener("pointerout", function (event) {
+        const card = event.target.closest(".song-row");
+        if (!card || card.contains(event.relatedTarget)) return;
+        card.style.setProperty("--card-rotate-x", "0deg");
+        card.style.setProperty("--card-rotate-y", "0deg");
+        card.style.setProperty("--card-shadow-x", "0px");
+        card.style.setProperty("--card-shadow-y", "0px");
+        card.style.setProperty("--shine-opacity", "0");
+        card.style.setProperty("--shine-angle", "135deg");
+    });
+})();
+</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
