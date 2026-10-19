@@ -46,6 +46,8 @@
 
     <!-- Main search logic -->
     <script src="search.js" defer></script>
+    <!-- Badge abbreviations, controls, and rendering -->
+    <script src="song-badges.js" defer></script>
 
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #fffee0; }
@@ -70,14 +72,14 @@
         .multi-filter .remove-filter { padding:5px 8px; font-size:12px; cursor:pointer; border-radius:4px; border:1px solid #999; background-color:#f0f0f0; }
         #extra-filters { text-align:center; margin-bottom:10px; }
         #preview-options { box-sizing:border-box; width:fit-content; max-width:calc(100% - 24px); margin:12px auto; padding:1px 18px; border:3px solid #8b6a3e; border-radius:14px; background:linear-gradient(145deg, #fffdf0, #fff4c9); box-shadow:3px 4px 0 #c5a76e, 0 5px 14px rgba(75, 55, 25, .14); text-align:center; font-size:15px; line-height:1.8; z-index:99; }
-        #preview-options strong { display:inline-block; margin-bottom:5px; color:#0066cc; font-size:14px; line-height:1.3; }
+        #preview-options strong { display:inline-block; margin-bottom:5px; color:#010101; font-size:14px; line-height:1.3; }
         #preview-options label { display:inline-block; margin:0 8px 2px 0; white-space:nowrap; z-index:99;}
         #filter-template { display:none; }
         
        body {
         font-family: Arial, sans-serif;
         margin: 20px;
-        background-color: #fffaea;
+        background-color: #e9feff;
     }
 
     /* Top bar layout: help button, title, shortcut menu */
@@ -144,7 +146,7 @@
     }
 
     #shortcutMenu:hover {
-    background-color: #fee6a3;
+    background-color: #fef3a3;
 }
 
     #shortcutList {
@@ -177,7 +179,7 @@
     }
 
     .shortcut-item:hover {
-        background-color: #fee6a3;
+        background-color: #fef3a3;
     }
 
     /* Search container */
@@ -274,7 +276,7 @@
 }
 
 #add-filter:hover {
-    background: #fff5a6;
+    background: #fef3a3;
 }
 
 #piano-toggle {
@@ -289,7 +291,7 @@
     border: 2px solid #999;
     border-radius: 6px;
     box-shadow: 2px 2px 0 #999;
-    background: #ffff93;
+    background: #fff8c0;
     color: #333;
     cursor: pointer;
     font: 8px Arial, sans-serif;
@@ -298,7 +300,7 @@
 }
 
 #piano-toggle:hover {
-    background: #f0f087;
+    background: #fef3a3;
 }
 
 #rhythm-toggle {
@@ -313,7 +315,7 @@
     border: 2px solid #999;
     border-radius: 6px;
     box-shadow: 2px 2px 0 #999;
-    background: #ffff93;
+    background: #fff8c0;
     color: #333;
     cursor: pointer;
     font: 8px Arial, sans-serif;
@@ -322,7 +324,7 @@
 }
 
 #rhythm-toggle:hover {
-    background: #f0f087;
+    background: #fef3a3;
 }
 
 #export-btn {
@@ -362,13 +364,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 95px;
+    width: 80px;
     height: 50px;
     padding: 8px 12px;
     border: 2px solid #999;
     border-radius: 6px;
     box-shadow: 2px 2px 0 #999;
-    background: #bbfff3;
+    background: #c4fff0;
     color: #333;
     cursor: pointer;
     font: 16px Arial, sans-serif;
@@ -587,6 +589,7 @@
     <label><input type="checkbox" class="preview-meta" value="Meter"> Meter</label>
     <label><input type="checkbox" class="preview-meta" value="Melodic Form"> Melodic Form</label>
     <label><input type="checkbox" class="preview-meta" value="Rhythmic Form"> Rhythmic Form</label>
+    <label><input type="checkbox" class="preview-meta" value="Badges" checked> Badges</label>
     <label><input type="checkbox" class="preview-meta" value="Hide Thumbnails"> Hide Thumbnails/List Mode</label>
 </div>
 
@@ -951,37 +954,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
