@@ -427,7 +427,7 @@
     .song-row { box-sizing: border-box; height: 100%; min-height: 100%; padding: 14px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; overflow: hidden; border: 3px solid #8b6a3e; border-radius: 14px; background: linear-gradient(145deg, #fffdf0, #fff4c9); background-clip: padding-box; box-shadow: calc(3px + var(--card-shadow-x, 0px)) calc(4px + var(--card-shadow-y, 0px)) 0 #c5a76e, var(--card-shadow-x, 0px) calc(5px + var(--card-shadow-y, 0px)) 14px rgba(75, 55, 25, .14); transform: perspective(900px) rotateX(var(--card-rotate-x, 0deg)) rotateY(var(--card-rotate-y, 0deg)); transform-style: preserve-3d; transition: transform 180ms ease, box-shadow 180ms ease; }
     .song-row:hover { z-index: 5; box-shadow: calc(4px + var(--card-shadow-x, 0px)) calc(7px + var(--card-shadow-y, 0px)) 0 #c5a76e, var(--card-shadow-x, 0px) calc(9px + var(--card-shadow-y, 0px)) 20px rgba(75, 55, 25, .2); }
     .song-row::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(var(--shine-angle, 135deg), transparent calc(var(--shine-position, 50%) - 25%), rgba(255, 255, 255, .04) calc(var(--shine-position, 50%) - 13%), rgba(255, 255, 255, .3) calc(var(--shine-position, 50%) - 3%), rgba(255, 255, 255, .62) var(--shine-position, 50%), rgba(255, 248, 205, .24) calc(var(--shine-position, 50%) + 4%), rgba(255, 255, 255, .05) calc(var(--shine-position, 50%) + 14%), transparent calc(var(--shine-position, 50%) + 25%)); opacity: var(--shine-opacity, 0); pointer-events: none; transition: opacity 180ms ease; z-index: 4; }
-    .song-card-title { order: 0; min-height: 2.4em; display: flex; align-items: center; justify-content: center; padding: 3px 2px 9px; border-bottom: 2px solid #d9c28e; text-align: center; }
+    .song-card-title { order: 0; min-height: 2.4em; display: flex; align-items: center; justify-content: center; padding: 3px 2px 3px; border-bottom: 2px solid #d9c28e; text-align: center; }
     .song-card-title .title-link { font-size: clamp(17px, 1.5vw, 22px); line-height: 1.25; }
     .song-row { position: relative; }
     .song-row > .thumbnail-container { order: 1; position: relative; box-sizing: border-box; width: 100%; height: 190px; display: flex; align-items: center; justify-content: center; overflow: visible !important; background: #fff; border: 1px solid #d5d5d5; }
@@ -452,6 +452,7 @@
         .song-row { transform: none; transition: none; }
         .song-row::after { transition: none; }
     }
+    .thumbnail-container.cursor-zoom-ready, .thumbnail-container.cursor-zoom-ready * { cursor: zoom-in !important; }
     #pdf-hover-preview { display: none; position: fixed; left: 50vw; top: 50vh; transform: translate(-50%, -50%); z-index: 2147483647; box-sizing: border-box; border: 2px solid #8b6a3e; background: #fff; box-shadow: 0 8px 28px rgba(0, 0, 0, .45); overflow: hidden; pointer-events: auto; }
     #pdf-hover-preview > canvas { display: block; width: 100%; height: 100%; }
 
@@ -620,6 +621,7 @@ function arrangeSongCards() {
 }
 
 let thumbnailHoverTimer = null;
+let thumbnailCursorTimer = null;
 let activeThumbnailContainer = null;
 let activeThumbnailCopy = null;
 
@@ -630,9 +632,8 @@ function showThumbnailZoom(container) {
 
     const pixelWidth = source.width || 1;
     const pixelHeight = source.height || 1;
-    const maxWidth = Math.min(window.innerWidth * 0.5, 1100);
-    const maxHeight = window.innerHeight * 0.5;
-    const scale = Math.min(maxWidth / pixelWidth, maxHeight / pixelHeight);
+    const maxWidth = window.innerWidth * 0.4;
+    const scale = maxWidth / pixelWidth;
     const width = pixelWidth * scale;
     const height = pixelHeight * scale;
 
@@ -651,7 +652,12 @@ function showThumbnailZoom(container) {
 
 function hideThumbnailZoom() {
     clearTimeout(thumbnailHoverTimer);
+    clearTimeout(thumbnailCursorTimer);
     thumbnailHoverTimer = null;
+    thumbnailCursorTimer = null;
+    document.querySelectorAll(".thumbnail-container.cursor-zoom-ready").forEach(function (container) {
+        container.classList.remove("cursor-zoom-ready");
+    });
     activeThumbnailCopy = null;
     activeThumbnailContainer = null;
     const overlay = document.getElementById("pdf-hover-preview");
@@ -660,6 +666,8 @@ function hideThumbnailZoom() {
         overlay.replaceChildren();
     }
 }
+
+window.addEventListener("scroll", hideThumbnailZoom, true);
 
 document.addEventListener("click", function (event) {
     if (!event.target.closest("#pdf-hover-preview")) return;
@@ -672,9 +680,16 @@ document.addEventListener("pointerover", function (event) {
     const container = event.target.closest(".song-row .thumbnail-container");
     if (!container || container.contains(event.relatedTarget)) return;
     clearTimeout(thumbnailHoverTimer);
+    clearTimeout(thumbnailCursorTimer);
     if (activeThumbnailCopy) hideThumbnailZoom();
+    thumbnailCursorTimer = setTimeout(function () {
+        if (container.matches(":hover")) container.classList.add("cursor-zoom-ready");
+    }, 500);
     thumbnailHoverTimer = setTimeout(function () {
-        if (container.matches(":hover")) showThumbnailZoom(container);
+        if (container.matches(":hover")) {
+            container.classList.remove("cursor-zoom-ready");
+            showThumbnailZoom(container);
+        }
     }, 1500);
 });
 

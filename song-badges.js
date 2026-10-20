@@ -145,15 +145,15 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                flex: 0 0 36px;
-                width: 36px;
-                height: 36px;
-                padding: 2px;
+                flex: 0 0 31px;
+                width: 31px;
+                height: 31px;
+                padding: 1.7px;
                 border: 1px solid rgba(91, 67, 34, .52);
                 border-radius: 50%;
                 color: #342b1d;
                 box-shadow: inset 0 1px 2px rgba(255, 255, 255, .8), 0 1px 2px rgba(70, 50, 25, .18);
-                font: 700 10px/1 Arial, sans-serif;
+                font: 700 8.5px/1 Arial, sans-serif;
                 text-align: center;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -179,6 +179,7 @@
             .song-row.has-badges .song-card-title {
                 justify-content: flex-start;
                 padding-right: 46px;
+                padding-top: 13px;
                 text-align: left;
             }
             #songs .song-card-title .title-link.long-song-title {
@@ -207,7 +208,7 @@
                 white-space: nowrap;
             }
             @media (max-width: 520px) {
-                .song-row .song-badge { flex-basis: 32px; width: 32px; height: 32px; }
+                .song-row .song-badge { flex-basis: 27px; width: 27px; height: 27px; font-size: 7.5px; }
             }
         `;
         document.head.appendChild(style);
@@ -242,7 +243,7 @@
                 if (top + tipRect.height > window.innerHeight - 8) top = rect.top - tipRect.height - 8;
                 tooltip.style.left = left + "px";
                 tooltip.style.top = Math.max(8, top) + "px";
-            }, 1000);
+            }, 1500);
         });
         badge.addEventListener("mouseleave", function () {
             clearTimeout(timer);
